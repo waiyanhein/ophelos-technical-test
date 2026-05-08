@@ -1,9 +1,22 @@
+import 'reflect-metadata';
 import { createApp } from './app';
+import { loadConfig } from './config/env';
+import { AppDataSource } from './data-source';
 
-const port = Number(process.env.PORT) || 3000;
+const bootstrap = async (): Promise<void> => {
+  const { port } = loadConfig();
 
-const app = createApp();
+  await AppDataSource.initialize();
+  console.log('Database connection established');
 
-app.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
+  const app = createApp();
+
+  app.listen(port, () => {
+    console.log(`Server listening on port ${port}`);
+  });
+};
+
+bootstrap().catch((error: unknown) => {
+  console.error('Failed to start server', error);
+  process.exit(1);
 });

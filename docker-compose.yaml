@@ -1,0 +1,23 @@
+services:
+  db:
+    image: postgres:15
+    platform: linux/arm64/v8
+    container_name: ophelos-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ophelos_db
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - ophelos-network
+
+volumes:
+  postgres_data:
+
+networks:
+  ophelos-network:
+    driver: bridge

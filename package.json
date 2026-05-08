@@ -1,0 +1,15 @@
+{
+  "name": "ophelos-technical-test",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm run test --prefix backend",
+    "format:code": "npm run format:code --prefix backend",
+    "dev:up": "docker compose -f docker-compose.yaml up -d",
+    "test:up": "docker compose -f docker-compose.test.yaml up -d"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
