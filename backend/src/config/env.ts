@@ -31,12 +31,14 @@ export interface DatabaseConfig {
 export interface AppConfig {
   port: number;
   nodeEnv: string;
+  jwtSecret: string;
   database: DatabaseConfig;
 }
 
 const buildConfig = (): AppConfig => ({
   port: optionalNumber('PORT', 3000),
   nodeEnv: process.env.NODE_ENV ?? 'development',
+  jwtSecret: requireEnv('JWT_SECRET'),
   database: {
     host: requireEnv('DB_HOST'),
     port: optionalNumber('DB_PORT', 5432),
