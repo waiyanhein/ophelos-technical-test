@@ -1,0 +1,125 @@
+@reference "../../index.css";
+
+.money-card {
+  @apply bg-surface border border-line;
+  padding: 24px 28px;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+.money-card__eyebrow {
+  @apply text-ink-muted uppercase font-semibold;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  margin-bottom: 18px;
+}
+
+.money-card__sections {
+  display: flex;
+  flex-direction: column;
+}
+
+.money-card__section + .money-card__section {
+  margin-top: 6px;
+}
+
+.money-card__pill {
+  @apply inline-flex items-center font-medium;
+  font-size: 13px;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  margin: 14px 0 4px;
+}
+
+.money-card__pill--success {
+  color: var(--color-success);
+  background: var(--color-success-soft);
+}
+
+.money-card__pill--accent {
+  color: var(--color-accent);
+  background: var(--color-accent-soft);
+}
+
+.money-card__pill--danger {
+  color: var(--color-danger);
+  background: var(--color-danger-soft);
+}
+
+.money-card__pill--warning {
+  color: var(--color-warning);
+  background: var(--color-warning-soft);
+}
+
+.money-card__rows {
+  @apply list-none p-0 m-0;
+}
+
+.money-card__item {
+  border-bottom: 1px solid var(--color-line);
+  padding: 14px 0;
+}
+
+.money-card__item:last-child {
+  border-bottom: 0;
+}
+
+.money-card__row {
+  @apply flex items-center justify-between;
+  font-size: 14px;
+}
+
+.money-card__row-label {
+  @apply text-ink;
+}
+
+.money-card__row-label--total {
+  @apply font-semibold;
+}
+
+.money-card__row-amount {
+  @apply font-medium;
+}
+
+.money-card__row-amount--ink {
+  @apply text-ink;
+}
+
+.money-card__row-amount--success {
+  color: var(--color-success);
+}
+
+.money-card__row-amount--danger {
+  color: var(--color-danger);
+}
+
+.money-card__item--total .money-card__row-amount {
+  @apply font-semibold;
+}
+
+.money-card__note {
+  margin-top: 12px;
+  padding: 10px 14px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-warning);
+  background: var(--color-warning-soft);
+  border-radius: 8px;
+}
+
+.money-card__outgoings {
+  @apply flex items-center justify-between;
+  border-top: 1px solid var(--color-line);
+  padding-top: 16px;
+  margin-top: 6px;
+}
+
+.money-card__outgoings-label {
+  @apply text-ink-muted;
+  font-size: 14px;
+}
+
+.money-card__outgoings-amount {
+  @apply text-ink font-semibold;
+  font-size: 14px;
+}

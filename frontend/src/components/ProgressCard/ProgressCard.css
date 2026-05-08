@@ -1,0 +1,81 @@
+@reference "../../index.css";
+
+.progress-card {
+  @apply bg-surface border border-line;
+  padding: 22px 24px;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+.progress-card__eyebrow {
+  @apply text-ink-muted uppercase font-semibold;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  margin-bottom: 18px;
+}
+
+.progress-card__rows {
+  @apply list-none p-0 m-0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.progress-card__row {
+  display: grid;
+  grid-template-columns: 32px 1fr 56px 32px;
+  align-items: center;
+  gap: 12px;
+}
+
+.progress-card__month {
+  @apply text-ink-muted;
+  font-size: 13px;
+}
+
+.progress-card__track {
+  @apply block;
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-muted);
+  overflow: hidden;
+}
+
+.progress-card__fill {
+  @apply block h-full;
+  border-radius: var(--radius-pill);
+}
+
+.progress-card__fill--success {
+  background: var(--color-success);
+}
+
+.progress-card__fill--warning {
+  background: var(--color-warning);
+}
+
+.progress-card__fill--danger {
+  background: var(--color-danger);
+}
+
+.progress-card__amount {
+  @apply text-ink text-right;
+  font-size: 13px;
+}
+
+.progress-card__now {
+  @apply text-ink-muted;
+  font-size: 12px;
+}
+
+.progress-card__divider {
+  @apply bg-line;
+  height: 1px;
+  margin: 18px 0 14px;
+}
+
+.progress-card__note {
+  @apply text-success;
+  font-size: 13px;
+  line-height: 1.5;
+}

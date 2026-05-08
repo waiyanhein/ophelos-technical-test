@@ -1,0 +1,16 @@
+@reference "../../index.css";
+
+.greeting {
+  @apply mb-6;
+}
+
+.greeting__title {
+  @apply text-ink;
+  font-size: 30px;
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+
+.greeting__sub {
+  @apply text-ink-muted max-w-md;
+}

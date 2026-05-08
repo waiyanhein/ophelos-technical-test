@@ -1,0 +1,90 @@
+@reference "../../index.css";
+
+.leftover-card {
+  @apply bg-surface border border-line p-7 grid;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  grid-template-columns: minmax(180px, 220px) 1px 1fr;
+  gap: 28px;
+}
+
+.leftover-card__amount {
+  @apply flex flex-col items-center justify-center text-center;
+}
+
+.leftover-card__figure {
+  @apply font-semibold text-brand;
+  font-size: 56px;
+  line-height: 1;
+  letter-spacing: -1px;
+  margin-bottom: 10px;
+}
+
+.leftover-card__caption {
+  @apply text-ink-muted;
+  font-size: 14px;
+}
+
+.leftover-card__divider {
+  @apply bg-line;
+  width: 1px;
+  height: 100%;
+}
+
+.leftover-card__body {
+  @apply flex flex-col items-start;
+  gap: 12px;
+}
+
+.leftover-card__badge {
+  @apply inline-flex items-center gap-2 text-sm font-medium;
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  border: 1px solid transparent;
+}
+
+.leftover-card__badge--warning {
+  @apply text-brand;
+  background: var(--color-brand-soft);
+  border-color: var(--color-brand-line);
+}
+
+.leftover-card__badge--success {
+  @apply text-success;
+  background: var(--color-success-soft);
+}
+
+.leftover-card__badge--danger {
+  @apply text-danger;
+  background: var(--color-danger-soft);
+}
+
+.leftover-card__badge-dot {
+  @apply rounded-full;
+  width: 7px;
+  height: 7px;
+  background: currentColor;
+}
+
+.leftover-card__headline {
+  @apply text-ink font-semibold;
+  font-size: 17px;
+  line-height: 1.35;
+}
+
+.leftover-card__copy {
+  @apply text-ink-muted;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+@media (max-width: 640px) {
+  .leftover-card {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .leftover-card__divider {
+    width: 100%;
+    height: 1px;
+  }
+}

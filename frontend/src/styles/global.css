@@ -1,0 +1,22 @@
+/* Base resets and document-level styling. */
+
+html,
+body,
+#root {
+  @apply h-full;
+}
+
+body {
+  @apply bg-page text-ink-muted font-sans antialiased;
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  @apply text-ink font-medium;
+  margin: 0;
+}

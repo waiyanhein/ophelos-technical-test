@@ -1,0 +1,56 @@
+/*
+ * Theme tokens — single source of truth for colors, typography, spacing, radii.
+ * Change a value here and it propagates everywhere via Tailwind utilities and
+ * the @apply rules in component CSS files.
+ */
+
+@theme {
+  /* Surfaces */
+  --color-page: #f3f3f1;
+  --color-surface: #ffffff;
+  --color-surface-muted: #ebe8e2;
+
+  /* Text */
+  --color-ink: #0f0f10;
+  --color-ink-muted: #6b6b70;
+  --color-ink-soft: #8a8a90;
+
+  /* Borders */
+  --color-line: #e5e5e3;
+  --color-line-strong: #d6d4cc;
+
+  /* Brand / highlight (the "£850" warm gold) */
+  --color-brand: #a36a1e;
+  --color-brand-soft: #fff4dc;
+  --color-brand-line: #e9c987;
+
+  /* Accent (purple — used for the "Worth knowing" rule and links) */
+  --color-accent: #4f3fc0;
+  --color-accent-soft: #efedfb;
+
+  /* Status */
+  --color-success: #2f8f3a;
+  --color-success-soft: #e3f1d8;
+  --color-warning: #b3771a;
+  --color-warning-soft: #f3dfaf;
+  --color-danger: #d44c4c;
+  --color-danger-soft: #f3c0bf;
+
+  /* Typography */
+  --font-sans:
+    'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial,
+    sans-serif;
+  --font-display:
+    'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial,
+    sans-serif;
+
+  /* Radii */
+  --radius-card: 10px;
+  --radius-pill: 999px;
+
+  /* Shadows */
+  --shadow-card: 0 1px 2px rgba(15, 15, 16, 0.04);
+
+  /* Layout */
+  --container-page: 1100px;
+}

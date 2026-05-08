@@ -1,0 +1,30 @@
+@reference "../../index.css";
+
+.home {
+  @apply min-h-full;
+}
+
+.home__main {
+  @apply mx-auto px-6;
+  max-width: var(--container-page);
+  padding-top: 36px;
+  padding-bottom: 64px;
+}
+
+.home__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+  gap: 24px;
+}
+
+.home__col {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+@media (max-width: 900px) {
+  .home__grid {
+    grid-template-columns: 1fr;
+  }
+}
