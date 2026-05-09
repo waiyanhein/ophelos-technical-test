@@ -1,5 +1,27 @@
 # Features
-- 
+## Login
+
+## Financial Health Status Widget
+
+
+## Monthly Spending Widget
+
+- Provides a breakdown of income and outgoings, while categorising outgoings into three groups:
+  - Essential Bills
+  - Debt Repayments
+  - Discretionary Spending
+
+- This widget gives customers a clear visual overview of how they are spending their money.
+
+- It highlights what portion of their income is being used for debt repayments.
+
+- The widget also suggests ways customers can adjust their discretionary spending and improve their spending habits to help repay debt earlier.
+  - For example, it may suggest cancelling one of the streaming subscriptions if the customer has subscriptions to Netflix, Disney+, and Amazon Prime.
+
+
+## Progress Over Time Widget
+
+- Tracks the customer’s financial progress over time and provides a clear view of improvements across a 6-month period.
 
 
 # Tech Stack

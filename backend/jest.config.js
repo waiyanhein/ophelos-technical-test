@@ -9,4 +9,5 @@ module.exports = {
   collectCoverageFrom: ['src/**/*.ts', '!src/**/*.d.ts'],
   coverageDirectory: 'coverage',
   clearMocks: true,
+  maxWorkers: 1,
 };

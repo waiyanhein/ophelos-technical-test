@@ -1,5 +1,6 @@
 import express, { Express, Request, Response } from 'express';
 import { authRouter } from './controllers/auth.controller';
+import { financialRouter } from './controllers/financial.controller';
 
 export const createApp = (): Express => {
   const app = express();
@@ -11,6 +12,7 @@ export const createApp = (): Express => {
   });
 
   app.use('/auth', authRouter);
+  app.use('/financial', financialRouter);
 
   return app;
 };

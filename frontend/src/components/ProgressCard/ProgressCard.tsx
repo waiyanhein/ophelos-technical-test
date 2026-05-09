@@ -1,38 +1,59 @@
 import { formatCurrency } from '../../lib/format'
-import type { MonthlyProgress } from '../../data/mockFinances'
+import type { ProgressPoint } from '../../lib/api'
 import './ProgressCard.css'
 
 type Props = {
-  months: MonthlyProgress[]
-  note: string
+  points: ProgressPoint[]
+  note?: string
 }
 
-export function ProgressCard({ months, note }: Props) {
-  const max = Math.max(...months.map((m) => m.amount))
+type Bucket = 'success' | 'warning' | 'danger'
+
+function bucketFromProgress(progress: number): Bucket {
+  if (progress >= 65) return 'success'
+  if (progress >= 30) return 'warning'
+  return 'danger'
+}
+
+function shortMonth(period: string): string {
+  return period.split(' ')[0]
+}
+
+export function ProgressCard({ points, note }: Props) {
+  const monthCount = points.length
 
   return (
     <article className="progress-card">
-      <h3 className="progress-card__eyebrow">Your progress over 6 months</h3>
+      <h3 className="progress-card__eyebrow">
+        Your progress over {monthCount} {monthCount === 1 ? 'month' : 'months'}
+      </h3>
       <ul className="progress-card__rows">
-        {months.map((m) => {
-          const width = Math.max(8, Math.round((m.amount / max) * 100))
+        {points.map((point) => {
+          const bucket = bucketFromProgress(point.progress)
+          const width = Math.max(8, point.progress)
           return (
-            <li className="progress-card__row" key={m.month}>
-              <span className="progress-card__month">{m.month}</span>
+            <li className="progress-card__row" key={point.period}>
+              <span className="progress-card__month">{shortMonth(point.period)}</span>
               <span className="progress-card__track" aria-hidden="true">
                 <span
-                  className={`progress-card__fill progress-card__fill--${m.bucket}`}
+                  className={`progress-card__fill progress-card__fill--${bucket}`}
                   style={{ width: `${width}%` }}
                 />
               </span>
-              <span className="progress-card__amount">{formatCurrency(m.amount)}</span>
-              {m.isCurrent ? <span className="progress-card__now">now</span> : <span />}
+              <span className="progress-card__amount">
+                {formatCurrency(point.disposable_income)}
+              </span>
+              {point.is_now ? <span className="progress-card__now">now</span> : <span />}
             </li>
           )
         })}
       </ul>
-      <div className="progress-card__divider" aria-hidden="true" />
-      <p className="progress-card__note">{note}</p>
+      {note ? (
+        <>
+          <div className="progress-card__divider" aria-hidden="true" />
+          <p className="progress-card__note">{note}</p>
+        </>
+      ) : null}
     </article>
   )
 }

@@ -33,6 +33,7 @@ export interface AppConfig {
   nodeEnv: string;
   jwtSecret: string;
   database: DatabaseConfig;
+  progressLookbackMonths: number;
 }
 
 const buildConfig = (): AppConfig => ({
@@ -46,6 +47,7 @@ const buildConfig = (): AppConfig => ({
     password: requireEnv('DB_PASSWORD'),
     database: requireEnv('DB_NAME'),
   },
+  progressLookbackMonths: optionalNumber('PROGRESS_LOOKBACK_MONTHS', 6),
 });
 
 let cached: AppConfig | undefined;

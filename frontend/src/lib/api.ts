@@ -1,3 +1,5 @@
+import { getToken } from './auth'
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api'
 
 export class ApiError extends Error {
@@ -12,6 +14,17 @@ export class ApiError extends Error {
 type LoginResponse = {
   authToken: string
   user: { id: string; name: string; email: string }
+}
+
+export type ProgressPoint = {
+  period: string
+  progress: number
+  disposable_income: number
+  is_now: boolean
+}
+
+export type Dashboard = {
+  overTimeProgress: ProgressPoint[]
 }
 
 export async function loginRequest(
@@ -43,9 +56,36 @@ export async function loginRequest(
   throw new ApiError(message, response.status)
 }
 
+export async function fetchDashboard(month?: string): Promise<Dashboard> {
+  const token = getToken()
+  if (!token) {
+    throw new ApiError('Not authenticated.', 401)
+  }
+
+  const query = month ? `?month=${encodeURIComponent(month)}` : ''
+
+  let response: Response
+  try {
+    response = await fetch(`${API_BASE_URL}/financial/dashboard${query}`, {
+      method: 'GET',
+      headers: { Authorization: `Bearer ${token}` },
+    })
+  } catch {
+    throw new ApiError('Network error — please try again.', 0)
+  }
+
+  if (response.ok) {
+    return await response.json()
+  }
+
+  const body = await response.json().catch(() => null)
+  const message = extractErrorMessage(body) ?? 'Failed to load dashboard data.'
+  throw new ApiError(message, response.status)
+}
+
 function extractErrorMessage(body: unknown): string | null {
   if (!body || typeof body !== 'object') return null
-  const record = body as Record<string, unknown>
+  const record: Record<string, unknown> = { ...body }
   if (typeof record.error === 'string') return record.error
   return null
 }
