@@ -1,0 +1,21 @@
+@reference "../../index.css";
+
+.index {
+  @apply min-h-full flex items-center justify-center;
+  background: var(--color-page);
+}
+
+.index__spinner {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--color-line);
+  border-top-color: var(--color-ink);
+  animation: index-spin 0.8s linear infinite;
+}
+
+@keyframes index-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

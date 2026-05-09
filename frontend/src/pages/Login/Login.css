@@ -1,0 +1,109 @@
+@reference "../../index.css";
+
+.login {
+  @apply min-h-full flex flex-col;
+  background: var(--color-page);
+}
+
+.login__main {
+  @apply mx-auto flex flex-1 flex-col items-center justify-center w-full px-6;
+  max-width: 440px;
+  padding-top: 48px;
+  padding-bottom: 48px;
+}
+
+.login__brand {
+  @apply text-ink font-semibold;
+  font-size: 18px;
+  margin-bottom: 28px;
+}
+
+.login__card {
+  @apply bg-surface border border-line w-full;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: 32px;
+}
+
+.login__header {
+  @apply flex flex-col;
+  gap: 6px;
+  margin-bottom: 24px;
+}
+
+.login__title {
+  @apply text-ink font-semibold;
+  font-size: 22px;
+  line-height: 1.25;
+}
+
+.login__sub {
+  @apply text-ink-muted;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.login__form {
+  @apply flex flex-col;
+  gap: 18px;
+}
+
+.login__field {
+  @apply flex flex-col;
+  gap: 6px;
+}
+
+.login__label {
+  @apply text-ink font-medium;
+  font-size: 13px;
+}
+
+.login__input {
+  @apply bg-surface border border-line text-ink;
+  font-size: 15px;
+  padding: 11px 14px;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.login__input::placeholder {
+  color: var(--color-ink-soft);
+}
+
+.login__input:hover {
+  border-color: var(--color-line-strong);
+}
+
+.login__input:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-accent-soft);
+}
+
+.login__button {
+  @apply text-surface font-medium cursor-pointer;
+  background: var(--color-ink);
+  border: 0;
+  font-size: 15px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-top: 6px;
+  transition: opacity 120ms ease, transform 120ms ease;
+}
+
+.login__button:hover {
+  opacity: 0.92;
+}
+
+.login__button:active {
+  transform: translateY(1px);
+}
+
+@media (max-width: 480px) {
+  .login__card {
+    padding: 24px;
+  }
+  .login__title {
+    font-size: 20px;
+  }
+}
