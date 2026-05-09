@@ -7,7 +7,8 @@
     "format:code": "npm run format:code --prefix backend",
     "dev:up": "docker compose -f docker-compose.yaml up -d",
     "test:up": "docker compose -f docker-compose.test.yaml up -d",
-    "fe:dev": "npm run dev --prefix frontend"
+    "fe:dev": "npm run dev --prefix frontend",
+    "be:dev": "npm run dev --prefix backend"
   },
   "keywords": [],
   "author": "",

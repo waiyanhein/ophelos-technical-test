@@ -99,6 +99,17 @@
   transform: translateY(1px);
 }
 
+.login__button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.login__error {
+  color: #b42318;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
 @media (max-width: 480px) {
   .login__card {
     padding: 24px;

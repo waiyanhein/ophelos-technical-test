@@ -15,9 +15,7 @@ const createUser = async (
   const user = repo.create({
     name: overrides.name ?? 'Ada Lovelace',
     email: overrides.email ?? 'ada@example.com',
-    password:
-      overrides.password ??
-      (await bcrypt.hash(PASSWORD, 4)),
+    password: overrides.password ?? (await bcrypt.hash(PASSWORD, 4)),
   });
   return repo.save(user);
 };
@@ -36,7 +34,7 @@ describe('POST /auth/login (integration)', () => {
     await AppDataSource.query('TRUNCATE TABLE "users" RESTART IDENTITY CASCADE');
   });
 
-  it('returns a signed JWT for valid credentials', async () => {
+  it('returns a signed JWT and the authenticated user for valid credentials', async () => {
     const user = await createUser();
 
     const response = await request(createApp())
@@ -44,7 +42,14 @@ describe('POST /auth/login (integration)', () => {
       .send({ email: 'ada@example.com', password: PASSWORD });
 
     expect(response.status).toBe(200);
-    expect(response.body).toEqual({ authToken: expect.any(String) });
+    expect(response.body).toEqual({
+      authToken: expect.any(String),
+      user: {
+        id: user.id,
+        name: 'Ada Lovelace',
+        email: 'ada@example.com',
+      },
+    });
 
     const { jwtSecret } = loadConfig();
     const decoded = jwt.verify(response.body.authToken, jwtSecret) as {
@@ -57,6 +62,19 @@ describe('POST /auth/login (integration)', () => {
     expect(decoded.email).toBe('ada@example.com');
     // 7 days = 604800 seconds
     expect(decoded.exp - decoded.iat).toBe(604800);
+  });
+
+  it('does not expose sensitive user fields in the response', async () => {
+    await createUser();
+
+    const response = await request(createApp())
+      .post('/auth/login')
+      .send({ email: 'ada@example.com', password: PASSWORD });
+
+    expect(response.status).toBe(200);
+    expect(response.body.user).not.toHaveProperty('password');
+    expect(response.body.user).not.toHaveProperty('createdAt');
+    expect(response.body.user).not.toHaveProperty('updatedAt');
   });
 
   it('trims and lowercases the email before lookup', async () => {

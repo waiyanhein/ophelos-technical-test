@@ -1,0 +1,83 @@
+@reference "../../index.css";
+
+.error-boundary {
+  @apply min-h-full flex flex-col;
+  background: var(--color-page);
+}
+
+.error-boundary__main {
+  @apply mx-auto flex flex-1 flex-col items-center justify-center w-full px-6;
+  max-width: 440px;
+  padding-top: 48px;
+  padding-bottom: 48px;
+}
+
+.error-boundary__brand {
+  @apply text-ink font-semibold;
+  font-size: 18px;
+  margin-bottom: 28px;
+}
+
+.error-boundary__card {
+  @apply bg-surface border border-line w-full;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: 32px;
+}
+
+.error-boundary__header {
+  @apply flex flex-col;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.error-boundary__badge {
+  @apply font-medium;
+  align-self: flex-start;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+}
+
+.error-boundary__title {
+  @apply text-ink font-semibold;
+  font-size: 22px;
+  line-height: 1.25;
+}
+
+.error-boundary__sub {
+  @apply text-ink-muted;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.error-boundary__button {
+  @apply text-surface font-medium cursor-pointer w-full;
+  background: var(--color-ink);
+  border: 0;
+  font-size: 15px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  transition: opacity 120ms ease, transform 120ms ease;
+}
+
+.error-boundary__button:hover {
+  opacity: 0.92;
+}
+
+.error-boundary__button:active {
+  transform: translateY(1px);
+}
+
+@media (max-width: 480px) {
+  .error-boundary__card {
+    padding: 24px;
+  }
+  .error-boundary__title {
+    font-size: 20px;
+  }
+}

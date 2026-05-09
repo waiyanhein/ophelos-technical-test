@@ -1,18 +1,35 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../lib/auth-context'
+import { ApiError } from '../../lib/api'
+import { useThrowAsyncError } from '../../lib/use-throw-async-error'
 import './Login.css'
 
 export function Login() {
   const navigate = useNavigate()
   const { login } = useAuth()
+  const throwAsyncError = useThrowAsyncError()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const [submitting, setSubmitting] = useState(false)
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    login(email)
-    navigate('/dashboard', { replace: true })
+    setError(null)
+    setSubmitting(true)
+    try {
+      await login(email, password)
+      navigate('/dashboard', { replace: true })
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setError(err.message)
+      } else {
+        throwAsyncError(err)
+      }
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -49,8 +66,13 @@ export function Login() {
                 required
               />
             </label>
-            <button type="submit" className="login__button">
-              Sign in
+            {error ? (
+              <p className="login__error" role="alert">
+                {error}
+              </p>
+            ) : null}
+            <button type="submit" className="login__button" disabled={submitting}>
+              {submitting ? 'Signing in…' : 'Sign in'}
             </button>
           </form>
         </article>

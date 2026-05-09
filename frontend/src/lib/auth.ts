@@ -2,6 +2,8 @@ const TOKEN_KEY = 'auth_token'
 const USER_KEY = 'auth_user'
 
 export type User = {
+  id: string
+  name: string
   email: string
 }
 
@@ -21,7 +23,8 @@ export function getStoredUser(): User | null {
   const raw = localStorage.getItem(USER_KEY)
   if (!raw) return null
   try {
-    return JSON.parse(raw) as User
+    const parsed = JSON.parse(raw);
+    return { id: parsed.id, name: parsed.name, email: parsed.email };
   } catch {
     return null
   }

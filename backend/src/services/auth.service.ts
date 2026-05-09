@@ -17,7 +17,14 @@ const TOKEN_EXPIRY: SignOptions['expiresIn'] = '7d';
 
 const getUserRepository = (): Repository<User> => AppDataSource.getRepository(User);
 
-export const login = async (input: LoginInput): Promise<{ authToken: string }> => {
+export type AuthenticatedUser = Pick<User, 'id' | 'name' | 'email'>;
+
+export interface LoginResult {
+  authToken: string;
+  user: AuthenticatedUser;
+}
+
+export const login = async (input: LoginInput): Promise<LoginResult> => {
   const repo = getUserRepository();
   const user = await repo.findOne({ where: { email: input.email } });
 
@@ -35,5 +42,8 @@ export const login = async (input: LoginInput): Promise<{ authToken: string }> =
     expiresIn: TOKEN_EXPIRY,
   });
 
-  return { authToken };
+  return {
+    authToken,
+    user: { id: user.id, name: user.name, email: user.email },
+  };
 };

@@ -6,16 +6,20 @@ import { MonthlyMoneyCard } from '../../components/MonthlyMoneyCard/MonthlyMoney
 import { ProgressCard } from '../../components/ProgressCard/ProgressCard'
 import { SupportCard } from '../../components/SupportCard/SupportCard'
 import { mockFinances } from '../../data/mockFinances'
+import { useAuth } from '../../lib/auth-context'
 import './Home.css'
 
 export function Home() {
   const data = mockFinances
+  const { user } = useAuth()
+  const firstName = user?.name.trim().split(/\s+/)[0] ?? ''
+  const email = user?.email ?? ''
 
   return (
     <div className="home">
-      <Header period={data.period} email={data.user.email} />
+      <Header period={data.period} email={email} />
       <main className="home__main">
-        <Greeting firstName={data.user.firstName} />
+        <Greeting firstName={firstName} />
         <div className="home__grid">
           <div className="home__col home__col--primary">
             <LeftoverCard
