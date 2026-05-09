@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Header } from '../../components/Header/Header'
 import { Greeting } from '../../components/Greeting/Greeting'
 import { LeftoverCard } from '../../components/LeftoverCard/LeftoverCard'
-import { InsightCard } from '../../components/InsightCard/InsightCard'
+import { RecommendationsCard } from '../../components/RecommendationsCard/RecommendationsCard'
 import { MonthlyMoneyCard } from '../../components/MonthlyMoneyCard/MonthlyMoneyCard'
 import { ProgressCard } from '../../components/ProgressCard/ProgressCard'
 import { SupportCard } from '../../components/SupportCard/SupportCard'
@@ -13,6 +13,9 @@ import { formatCurrency } from '../../lib/format'
 import { useThrowAsyncError } from '../../lib/use-throw-async-error'
 import './Home.css'
 
+/**
+ * @TODO - move this business logic to the backend.
+ */
 function buildProgressNote(points: ProgressPoint[]): string {
   if (points.length < 2) return ''
   const mostRecent = points[0]
@@ -52,6 +55,8 @@ export function Home() {
 
   const progress: ProgressPoint[] | null = dashboard?.overTimeProgress ?? null
   const money = dashboard?.yourMoneyThisMonth ?? null
+  const recommendations = dashboard?.recommendations ?? []
+  const health = dashboard?.financialHealthStatus ?? null
 
   return (
     <div className="home">
@@ -60,13 +65,21 @@ export function Home() {
         <Greeting firstName={firstName} />
         <div className="home__grid">
           <div className="home__col home__col--primary">
-            <LeftoverCard
-              amount={data.leftover}
-              status={data.status}
-              headline={data.headline}
-              body={data.body}
-            />
-            <InsightCard body={data.insight} />
+            {health === null ? (
+              <article className="leftover-card leftover-card--loading" aria-busy="true">
+                Loading your financial health…
+              </article>
+            ) : (
+              <LeftoverCard
+                amount={health.disposableIncome}
+                status={{ label: health.badgeLabel, tone: health.badgeTone }}
+                headline={health.headline}
+                body={health.body}
+              />
+            )}
+            {recommendations?.length > 0 ? (
+              <RecommendationsCard recommendations={recommendations ?? []} />
+            ): null}
             {money === null ? (
               <article className="money-card money-card--loading" aria-busy="true">
                 Loading your money this month…

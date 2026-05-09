@@ -128,3 +128,41 @@
   @apply text-ink font-semibold;
   font-size: 14px;
 }
+
+.money-card__recommendations {
+  margin-top: 18px;
+  padding: 16px 18px;
+  border-radius: 12px;
+  background: var(--color-accent-soft);
+}
+
+.money-card__recommendations-heading {
+  @apply text-ink-muted uppercase font-semibold;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  margin: 0 0 10px;
+}
+
+.money-card__recommendations-list {
+  @apply list-none p-0 m-0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.money-card__recommendation {
+  @apply flex items-start;
+  gap: 10px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-ink);
+}
+
+.money-card__recommendation-icon {
+  flex: 0 0 auto;
+  line-height: 1.5;
+}
+
+.money-card__recommendation-text {
+  flex: 1 1 auto;
+}

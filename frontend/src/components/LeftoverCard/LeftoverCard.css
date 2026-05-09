@@ -8,16 +8,34 @@
   gap: 28px;
 }
 
+.leftover-card--loading {
+  @apply text-ink-muted;
+  display: block;
+  font-size: 14px;
+}
+
 .leftover-card__amount {
   @apply flex flex-col items-center justify-center text-center;
 }
 
 .leftover-card__figure {
-  @apply font-semibold text-brand;
+  @apply font-semibold;
   font-size: 56px;
   line-height: 1;
   letter-spacing: -1px;
   margin-bottom: 10px;
+}
+
+.figure-warning {
+  color: var(--color-brand);
+}
+
+.figure-success {
+  color: var(--color-success);
+}
+
+.figure-danger {
+  color: var(--color-danger);
 }
 
 .leftover-card__caption {

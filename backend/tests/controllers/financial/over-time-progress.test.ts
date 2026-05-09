@@ -1,3 +1,7 @@
+jest.mock('../../../src/services/recommendations.service', () => ({
+  getRecommendations: jest.fn().mockResolvedValue([]),
+}));
+
 import { UTCDate } from '@date-fns/utc';
 import { getMonth, getYear } from 'date-fns';
 import request from 'supertest';

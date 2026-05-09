@@ -28,13 +28,28 @@ export interface DatabaseConfig {
   database: string;
 }
 
+export type LlmProvider = 'openai';
+
+export interface LlmConfig {
+  provider: LlmProvider;
+  model: string;
+  apiKey: string;
+  temperature: number;
+}
+
 export interface AppConfig {
   port: number;
   nodeEnv: string;
   jwtSecret: string;
   database: DatabaseConfig;
   progressLookbackMonths: number;
+  llm: LlmConfig;
 }
+
+const parseLlmProvider = (raw: string): LlmProvider => {
+  if (raw === 'openai') return raw;
+  throw new Error(`Unsupported LLM_PROVIDER: ${raw}`);
+};
 
 const buildConfig = (): AppConfig => ({
   port: optionalNumber('PORT', 3000),
@@ -48,6 +63,12 @@ const buildConfig = (): AppConfig => ({
     database: requireEnv('DB_NAME'),
   },
   progressLookbackMonths: optionalNumber('PROGRESS_LOOKBACK_MONTHS', 6),
+  llm: {
+    provider: parseLlmProvider(process.env.LLM_PROVIDER ?? 'openai'),
+    model: process.env.LLM_MODEL ?? 'gpt-4o-mini',
+    apiKey: process.env.LLM_API_KEY ?? '',
+    temperature: optionalNumber('LLM_TEMPERATURE', 0.3),
+  },
 });
 
 let cached: AppConfig | undefined;

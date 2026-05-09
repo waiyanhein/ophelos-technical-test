@@ -1,6 +1,6 @@
 @reference "../../index.css";
 
-.insight-card {
+.recommendations-card {
   @apply bg-surface relative;
   padding: 24px 28px 24px 28px;
   border-radius: var(--radius-card);
@@ -9,12 +9,12 @@
   border-left: 3px solid var(--color-accent);
 }
 
-.insight-card__head {
+.recommendations-card__head {
   @apply flex items-center gap-2;
   margin-bottom: 14px;
 }
 
-.insight-card__icon {
+.recommendations-card__icon {
   width: 13px;
   height: 13px;
   border: 1.5px solid var(--color-accent);
@@ -22,13 +22,13 @@
   display: inline-block;
 }
 
-.insight-card__eyebrow {
+.recommendations-card__eyebrow {
   @apply text-accent font-semibold uppercase;
   font-size: 12px;
   letter-spacing: 0.08em;
 }
 
-.insight-card__body {
+.recommendations-card__body {
   @apply text-ink;
   font-size: 14px;
   line-height: 1.6;

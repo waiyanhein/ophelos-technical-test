@@ -45,9 +45,31 @@ export type YourMoneyThisMonth = {
   outgoing: MoneyGroup
 }
 
+export type FinancialHealthRating = 'red' | 'amber' | 'green'
+
+export type FinancialHealthBadgeTone = 'success' | 'warning' | 'danger'
+
+export type FinancialHealthStatus = {
+  rating: FinancialHealthRating
+  income: number
+  essentialSpend: number
+  debtRepayments: number
+  discretionarySpend: number
+  surplusAfterEssentials: number
+  headroom: number
+  headroomRatio: number
+  disposableIncome: number
+  badgeLabel: string
+  badgeTone: FinancialHealthBadgeTone
+  headline: string
+  body: string
+}
+
 export type Dashboard = {
   overTimeProgress: ProgressPoint[]
   yourMoneyThisMonth: YourMoneyThisMonth
+  financialHealthStatus: FinancialHealthStatus
+  recommendations: string[]
 }
 
 export async function loginRequest(

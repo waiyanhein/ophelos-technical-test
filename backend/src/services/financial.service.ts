@@ -4,8 +4,40 @@ import { addMonths, endOfMonth, format, isSameMonth, startOfMonth, subMonths } f
 import { AppDataSource } from '../data-source';
 import { loadConfig } from '../config/env';
 import { FinancialRecord } from '../entities/financial-record.entity';
+import { getRecommendations } from './recommendations.service';
 
 export type FinancialHealthColour = 'green' | 'amber' | 'red';
+export type FinancialHealthRating = FinancialHealthColour;
+
+export interface FinancialHealthSummary {
+  rating: FinancialHealthRating;
+  income: number;
+  essentialSpend: number;
+  debtRepayments: number;
+  discretionarySpend: number;
+  surplusAfterEssentials: number;
+  headroom: number;
+  headroomRatio: number;
+  // What's truly left over after every outgoing this month — the "leftover"
+  // figure surfaced in the financial-health widget. Mirrors the per-month
+  // disposable-income calculation used by the over-time-progress widget so the
+  // two widgets reconcile.
+  disposableIncome: number;
+}
+
+export type FinancialHealthBadgeTone = 'success' | 'warning' | 'danger';
+
+export interface FinancialHealthStatus extends FinancialHealthSummary {
+  badgeLabel: string;
+  badgeTone: FinancialHealthBadgeTone;
+  headline: string;
+  body: string;
+}
+
+export interface DiscretionaryItem {
+  description: string;
+  amount: number;
+}
 
 export interface ProgressPoint {
   period: string;
@@ -46,6 +78,8 @@ export type YourMoneyThisMonthOptions = OverTimeProgressOptions;
 export interface Dashboard {
   overTimeProgress: ProgressPoint[];
   yourMoneyThisMonth: YourMoneyThisMonth;
+  financialHealthStatus: FinancialHealthStatus;
+  recommendations: string[];
 }
 
 export type DashboardOptions = OverTimeProgressOptions;
@@ -79,12 +113,6 @@ export const calculateProgressForWindow = (disposableIncomes: number[]): number[
   }
   const range = max - min;
   return disposableIncomes.map((d) => Math.round(((d - min) / range) * 100));
-};
-
-export const colourForProgress = (progress: number): FinancialHealthColour => {
-  if (progress >= 65) return 'green';
-  if (progress >= 30) return 'amber';
-  return 'red';
 };
 
 const initBuckets = (mostRecentMonth: UTCDate, lookbackMonths: number): MonthBucket[] => {
@@ -269,10 +297,159 @@ export const getYourMoneyThisMonth = async (
   };
 };
 
+// Spec-defined thresholds for the headroom-ratio rating. Kept here (not in env)
+// because changing them changes the meaning of the rating, not just a knob.
+const HEADROOM_RATIO_AMBER_FLOOR = 0.1;
+const HEADROOM_RATIO_GREEN_FLOOR = 0.2;
+
+export interface HealthInputRecord {
+  type: 'income' | 'outgoing';
+  typeCategory: 'essential' | 'debt-repayment' | 'discretionary' | null;
+  amount: number;
+}
+
+export const calculateFinancialHealth = (records: HealthInputRecord[]): FinancialHealthSummary => {
+  let income = 0;
+  let essentialSpend = 0;
+  let debtRepayments = 0;
+  let discretionarySpend = 0;
+
+  for (const record of records) {
+    const amount = Number(record.amount);
+    if (record.type === 'income') {
+      income += amount;
+      continue;
+    }
+    if (record.typeCategory === 'essential') {
+      essentialSpend += amount;
+    } else if (record.typeCategory === 'debt-repayment') {
+      debtRepayments += amount;
+    } else {
+      // Anything else outgoing — explicit "discretionary" or uncategorised — is
+      // treated as discretionary. Uncategorised outgoings are negotiable by
+      // default; if the user wants them protected they should categorise them.
+      discretionarySpend += amount;
+    }
+  }
+
+  const surplusAfterEssentials = income - essentialSpend;
+  const headroom = surplusAfterEssentials - debtRepayments;
+  const headroomRatio = income > 0 ? headroom / income : 0;
+
+  let rating: FinancialHealthRating;
+  if (income <= 0 || essentialSpend > income) {
+    rating = 'red';
+  } else if (headroom <= 0) {
+    rating = 'red';
+  } else if (headroomRatio < HEADROOM_RATIO_AMBER_FLOOR) {
+    rating = 'red';
+  } else if (headroomRatio < HEADROOM_RATIO_GREEN_FLOOR) {
+    rating = 'amber';
+  } else {
+    rating = 'green';
+  }
+
+  const disposableIncome = income - essentialSpend - debtRepayments - discretionarySpend;
+
+  return {
+    rating,
+    income: round2(income),
+    essentialSpend: round2(essentialSpend),
+    debtRepayments: round2(debtRepayments),
+    discretionarySpend: round2(discretionarySpend),
+    surplusAfterEssentials: round2(surplusAfterEssentials),
+    headroom: round2(headroom),
+    headroomRatio: Math.round(headroomRatio * 10000) / 10000,
+    disposableIncome: round2(disposableIncome),
+  };
+};
+
+// Rating-keyed copy lives on the backend so messaging stays consistent across
+// surfaces and can be tweaked without a frontend deploy. Tone is included so
+// the widget renders the same colour treatment everywhere.
+const HEALTH_STATUS_COPY: Record<
+  FinancialHealthRating,
+  { badgeLabel: string; badgeTone: FinancialHealthBadgeTone; headline: string; body: string }
+> = {
+  red: {
+    badgeLabel: 'Under pressure',
+    badgeTone: 'danger',
+    headline: 'Your essentials and debt repayments are stretching your income.',
+    body: "You don't have meaningful breathing room this month. The suggestions below show where you might be able to free up some space — and a free debt adviser may be able to help you negotiate options.",
+  },
+  amber: {
+    badgeLabel: 'Limited buffer',
+    badgeTone: 'warning',
+    headline: 'You are making progress, but most of your income is already committed.',
+    body: 'There is limited room if something unexpected comes up. The suggestions below show where you might be able to free up some breathing room.',
+  },
+  green: {
+    badgeLabel: 'On track',
+    badgeTone: 'success',
+    headline: 'You have a meaningful buffer each month.',
+    body: 'You have room to absorb surprises and could redirect some of this surplus toward paying down debt sooner. Small optimisations are below.',
+  },
+};
+
+export const buildFinancialHealthStatus = (
+  summary: FinancialHealthSummary,
+): FinancialHealthStatus => ({
+  ...summary,
+  ...HEALTH_STATUS_COPY[summary.rating],
+});
+
+export const extractDiscretionaryItems = (
+  yourMoneyThisMonth: YourMoneyThisMonth,
+): DiscretionaryItem[] => {
+  const section = yourMoneyThisMonth.outgoing.sections.find(
+    (s) => s.sectionKey === 'discretionary',
+  );
+  if (!section) return [];
+  return section.items.map((item) => ({
+    description: item.description,
+    amount: item.amount,
+  }));
+};
+
+const getRecordsForMonth = async (options: DashboardOptions): Promise<FinancialRecord[]> => {
+  const now = new UTCDate();
+  const targetMonthStart =
+    options.month !== undefined
+      ? startOfMonth(new UTCDate(now.getUTCFullYear(), options.month - 1, 1))
+      : startOfMonth(now);
+  const targetMonthEnd = endOfMonth(targetMonthStart);
+
+  return getRepository().find({
+    where: {
+      userId: options.userId,
+      transactionDate: Between(targetMonthStart, targetMonthEnd),
+    },
+  });
+};
+
 export const getDashboard = async (options: DashboardOptions): Promise<Dashboard> => {
-  const [overTimeProgress, yourMoneyThisMonth] = await Promise.all([
+  const [overTimeProgress, yourMoneyThisMonth, monthRecords] = await Promise.all([
     getOverTimeProgress(options),
     getYourMoneyThisMonth(options),
+    getRecordsForMonth(options),
   ]);
-  return { overTimeProgress, yourMoneyThisMonth };
+
+  const health = calculateFinancialHealth(
+    monthRecords.map((r) => ({
+      type: r.type,
+      typeCategory: r.typeCategory,
+      amount: Number(r.amount),
+    })),
+  );
+  const discretionaryItems = extractDiscretionaryItems(yourMoneyThisMonth);
+  const financialHealthStatus = buildFinancialHealthStatus(health);
+
+  const recommendations = await getRecommendations({ health, discretionaryItems });
+
+  return {
+    overTimeProgress,
+    yourMoneyThisMonth,
+    financialHealthStatus,
+    recommendations,
+  };
 };

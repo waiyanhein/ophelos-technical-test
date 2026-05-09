@@ -1,3 +1,7 @@
+jest.mock('../../../src/services/recommendations.service', () => ({
+  getRecommendations: jest.fn().mockResolvedValue([]),
+}));
+
 import jwt from 'jsonwebtoken';
 import request from 'supertest';
 import { createApp } from '../../../src/app';
@@ -83,7 +87,7 @@ describe('GET /financial/dashboard — shared concerns (integration)', () => {
   });
 
   describe('top-level response shape', () => {
-    it('returns 200 with both widget fields populated', async () => {
+    it('returns 200 with every widget field populated', async () => {
       const user = await createUser();
       const token = tokenForUser(user);
 
@@ -96,6 +100,21 @@ describe('GET /financial/dashboard — shared concerns (integration)', () => {
       expect(response.body.yourMoneyThisMonth).toEqual({
         income: { total: 0, sections: [] },
         outgoing: { total: 0, sections: [] },
+      });
+      expect(Array.isArray(response.body.recommendations)).toBe(true);
+      expect(response.body.financialHealthStatus).toMatchObject({
+        rating: expect.stringMatching(/^(red|amber|green)$/),
+        disposableIncome: expect.any(Number),
+        income: expect.any(Number),
+        essentialSpend: expect.any(Number),
+        debtRepayments: expect.any(Number),
+        discretionarySpend: expect.any(Number),
+        headroom: expect.any(Number),
+        headroomRatio: expect.any(Number),
+        badgeLabel: expect.any(String),
+        badgeTone: expect.stringMatching(/^(success|warning|danger)$/),
+        headline: expect.any(String),
+        body: expect.any(String),
       });
     });
   });
