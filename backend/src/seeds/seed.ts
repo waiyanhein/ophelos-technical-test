@@ -1,5 +1,7 @@
 import 'reflect-metadata';
 import bcrypt from 'bcrypt';
+import { UTCDate } from '@date-fns/utc';
+import { setDate, setHours, startOfMonth, subMonths } from 'date-fns';
 import { AppDataSource } from '../data-source';
 import { User } from '../entities/user.entity';
 import {
@@ -86,19 +88,18 @@ const seedFinancialRecords = async (userId: string): Promise<void> => {
     return;
   }
 
-  const now = new Date();
+  const currentMonthStart = startOfMonth(new UTCDate());
   const seeds = buildSeedRecords();
   const entities = seeds.map((seed) => {
-    const date = new Date(
-      Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - seed.monthsAgo, seed.day, 12, 0, 0),
-    );
+    const monthStart = subMonths(currentMonthStart, seed.monthsAgo);
+    const transactionDate = setHours(setDate(monthStart, seed.day), 12);
     return repo.create({
       userId,
       amount: seed.amount.toFixed(2),
       type: seed.type,
       typeCategory: seed.typeCategory,
       description: seed.description,
-      transactionDate: date,
+      transactionDate,
     });
   });
 

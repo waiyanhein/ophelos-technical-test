@@ -1,4 +1,6 @@
 import bcrypt from 'bcrypt';
+import { UTCDate } from '@date-fns/utc';
+import { getMonth, getYear } from 'date-fns';
 import jwt, { SignOptions } from 'jsonwebtoken';
 import request from 'supertest';
 import { createApp } from '../../src/app';
@@ -10,6 +12,7 @@ import {
   FinancialRecordType,
   FinancialRecordTypeCategory,
 } from '../../src/entities/financial-record.entity';
+import { withDatabase } from '../utilities';
 
 const PASSWORD_HASH_ROUNDS = 4;
 
@@ -62,23 +65,10 @@ const seedRecords = async (userId: string, seeds: RecordSeed[]): Promise<void> =
 };
 
 const utc = (year: number, monthIndex: number, day: number, hour = 12): Date =>
-  new Date(Date.UTC(year, monthIndex, day, hour, 0, 0, 0));
+  new UTCDate(year, monthIndex, day, hour, 0, 0, 0);
 
 describe('GET /financial/dashboard (integration)', () => {
-  beforeAll(async () => {
-    await AppDataSource.initialize();
-    await AppDataSource.runMigrations();
-  });
-
-  afterAll(async () => {
-    await AppDataSource.destroy();
-  });
-
-  beforeEach(async () => {
-    await AppDataSource.query(
-      'TRUNCATE TABLE "financial_records", "users" RESTART IDENTITY CASCADE',
-    );
-  });
+  withDatabase();
 
   describe('authentication', () => {
     it('returns 401 when no Authorization header is sent', async () => {
@@ -171,7 +161,7 @@ describe('GET /financial/dashboard (integration)', () => {
     it('returns the last 6 months ending at the supplied month, most recent first', async () => {
       const user = await createUser();
       const token = tokenForUser(user);
-      const currentYear = new Date().getUTCFullYear();
+      const currentYear = getYear(new UTCDate());
 
       // March 2026 — multiple records spread across days.
       // Disposable incomes across the window: -200, 600, 1300, 200, 1000, 2000.
@@ -322,9 +312,9 @@ describe('GET /financial/dashboard (integration)', () => {
       const user = await createUser();
       const token = tokenForUser(user);
 
-      const now = new Date();
-      const currentYear = now.getUTCFullYear();
-      const currentMonthIndex = now.getUTCMonth();
+      const now = new UTCDate();
+      const currentYear = getYear(now);
+      const currentMonthIndex = getMonth(now);
 
       await seedRecords(user.id, [
         {
@@ -381,17 +371,31 @@ describe('GET /financial/dashboard (integration)', () => {
     it('scales each month linearly between the window min and max', async () => {
       const user = await createUser();
       const token = tokenForUser(user);
-      const currentYear = new Date().getUTCFullYear();
+      const currentYear = getYear(new UTCDate());
 
+      // Each month pairs income with outgoings so disposable = income - outgoing
+      // exercises both sides of the formula (not just income totals).
       // Disposable incomes (Jan→Jun): 200, 600, 1000, 1500, 800, 400.
       // Up Jan→Apr (peak), down Apr→Jun. Min=200, Max=1500, range=1300.
       await seedRecords(user.id, [
-        { amount: 200, type: 'income', transactionDate: utc(currentYear, 0, 5) },
-        { amount: 600, type: 'income', transactionDate: utc(currentYear, 1, 5) },
-        { amount: 1000, type: 'income', transactionDate: utc(currentYear, 2, 5) },
-        { amount: 1500, type: 'income', transactionDate: utc(currentYear, 3, 5) },
-        { amount: 800, type: 'income', transactionDate: utc(currentYear, 4, 5) },
-        { amount: 400, type: 'income', transactionDate: utc(currentYear, 5, 5) },
+        // Jan: 1200 - 1000 = 200
+        { amount: 1200, type: 'income', transactionDate: utc(currentYear, 0, 5) },
+        { amount: 1000, type: 'outgoing', transactionDate: utc(currentYear, 0, 20) },
+        // Feb: 1500 - 900 = 600
+        { amount: 1500, type: 'income', transactionDate: utc(currentYear, 1, 5) },
+        { amount: 900, type: 'outgoing', transactionDate: utc(currentYear, 1, 20) },
+        // Mar: 2000 - 1000 = 1000
+        { amount: 2000, type: 'income', transactionDate: utc(currentYear, 2, 5) },
+        { amount: 1000, type: 'outgoing', transactionDate: utc(currentYear, 2, 20) },
+        // Apr: 2500 - 1000 = 1500 (peak)
+        { amount: 2500, type: 'income', transactionDate: utc(currentYear, 3, 5) },
+        { amount: 1000, type: 'outgoing', transactionDate: utc(currentYear, 3, 20) },
+        // May: 1800 - 1000 = 800
+        { amount: 1800, type: 'income', transactionDate: utc(currentYear, 4, 5) },
+        { amount: 1000, type: 'outgoing', transactionDate: utc(currentYear, 4, 20) },
+        // Jun: 1400 - 1000 = 400
+        { amount: 1400, type: 'income', transactionDate: utc(currentYear, 5, 5) },
+        { amount: 1000, type: 'outgoing', transactionDate: utc(currentYear, 5, 20) },
       ]);
 
       const response = await request(createApp())
@@ -399,17 +403,27 @@ describe('GET /financial/dashboard (integration)', () => {
         .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
-      const progresses = response.body.overTimeProgress.map(
-        (p: { progress: number }) => p.progress,
+      const points = response.body.overTimeProgress.map(
+        (p: { progress: number; disposable_income: number }) => ({
+          progress: p.progress,
+          disposable_income: p.disposable_income,
+        }),
       );
       // Returned newest → oldest: Jun, May, Apr (peak), Mar, Feb, Jan (min).
-      expect(progresses).toEqual([15, 46, 100, 62, 31, 0]);
+      expect(points).toEqual([
+        { progress: 15, disposable_income: 400 },
+        { progress: 46, disposable_income: 800 },
+        { progress: 100, disposable_income: 1500 },
+        { progress: 62, disposable_income: 1000 },
+        { progress: 31, disposable_income: 600 },
+        { progress: 0, disposable_income: 200 },
+      ]);
     });
 
     it('returns 50 for every period when all months have equal disposable income', async () => {
       const user = await createUser();
       const token = tokenForUser(user);
-      const currentYear = new Date().getUTCFullYear();
+      const currentYear = getYear(new UTCDate());
 
       // Six months, identical income/outgoing → every disposable income is 500.
       const seeds: RecordSeed[] = [];
@@ -452,10 +466,43 @@ describe('GET /financial/dashboard (integration)', () => {
       }
     });
 
+    it('leaves gap months at zero when only some months in the window have records', async () => {
+      const user = await createUser();
+      const token = tokenForUser(user);
+      const currentYear = getYear(new UTCDate());
+
+      // Window for month=03: Oct (prev year) through Mar (current year).
+      // Only Oct and Feb have records; Nov, Dec, Jan, Mar are gaps.
+      // Oct disposable = 1000 - 200 = 800; Feb disposable = 1500 - 500 = 1000.
+      // Gap months disposable = 0.
+      // Window min = 0, max = 1000, range = 1000.
+      // Progress: Feb = 100, Oct = 80, gaps = 0.
+      await seedRecords(user.id, [
+        { amount: 1000, type: 'income', transactionDate: utc(currentYear - 1, 9, 5) },
+        { amount: 200, type: 'outgoing', transactionDate: utc(currentYear - 1, 9, 20) },
+        { amount: 1500, type: 'income', transactionDate: utc(currentYear, 1, 5) },
+        { amount: 500, type: 'outgoing', transactionDate: utc(currentYear, 1, 20) },
+      ]);
+
+      const response = await request(createApp())
+        .get('/financial/dashboard?month=03')
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body.overTimeProgress).toEqual([
+        { period: `Mar ${currentYear}`, progress: 0, disposable_income: 0, is_now: false },
+        { period: `Feb ${currentYear}`, progress: 100, disposable_income: 1000, is_now: false },
+        { period: `Jan ${currentYear}`, progress: 0, disposable_income: 0, is_now: false },
+        { period: `Dec ${currentYear - 1}`, progress: 0, disposable_income: 0, is_now: false },
+        { period: `Nov ${currentYear - 1}`, progress: 0, disposable_income: 0, is_now: false },
+        { period: `Oct ${currentYear - 1}`, progress: 80, disposable_income: 800, is_now: false },
+      ]);
+    });
+
     it('returns progress 0 when income is zero but outgoings exist', async () => {
       const user = await createUser();
       const token = tokenForUser(user);
-      const currentYear = new Date().getUTCFullYear();
+      const currentYear = getYear(new UTCDate());
 
       await seedRecords(user.id, [
         {
@@ -479,7 +526,7 @@ describe('GET /financial/dashboard (integration)', () => {
       const user = await createUser();
       const otherUser = await createUser({ email: 'other@example.com' });
       const token = tokenForUser(user);
-      const currentYear = new Date().getUTCFullYear();
+      const currentYear = getYear(new UTCDate());
 
       await seedRecords(otherUser.id, [
         {
@@ -503,7 +550,7 @@ describe('GET /financial/dashboard (integration)', () => {
     it('returns the periods sorted from most recent to oldest', async () => {
       const user = await createUser();
       const token = tokenForUser(user);
-      const currentYear = new Date().getUTCFullYear();
+      const currentYear = getYear(new UTCDate());
 
       // Seed in arbitrary (non-chronological) order to make sure the API
       // sort is deterministic and not dependent on insert order.
@@ -559,7 +606,7 @@ describe('GET /financial/dashboard (integration)', () => {
     it('handles a window that crosses the year boundary', async () => {
       const user = await createUser();
       const token = tokenForUser(user);
-      const currentYear = new Date().getUTCFullYear();
+      const currentYear = getYear(new UTCDate());
 
       // Asking for month=02 with 6 months lookback → Sep prev year through Feb current year.
       await seedRecords(user.id, [

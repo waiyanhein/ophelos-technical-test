@@ -1,4 +1,6 @@
 import { Between, Repository } from 'typeorm';
+import { UTCDate } from '@date-fns/utc';
+import { addMonths, endOfMonth, format, isSameMonth, startOfMonth, subMonths } from 'date-fns';
 import { AppDataSource } from '../data-source';
 import { loadConfig } from '../config/env';
 import { FinancialRecord } from '../entities/financial-record.entity';
@@ -15,8 +17,6 @@ export interface ProgressPoint {
 export interface OverTimeProgressOptions {
   userId: string;
   month?: number;
-  now?: Date;
-  lookbackMonths?: number;
 }
 
 export interface Dashboard {
@@ -25,24 +25,8 @@ export interface Dashboard {
 
 export type DashboardOptions = OverTimeProgressOptions;
 
-const MONTH_NAMES = [
-  'Jan',
-  'Feb',
-  'Mar',
-  'Apr',
-  'May',
-  'Jun',
-  'Jul',
-  'Aug',
-  'Sep',
-  'Oct',
-  'Nov',
-  'Dec',
-] as const;
-
 interface MonthBucket {
-  year: number;
-  monthIndex: number;
+  monthStart: UTCDate;
   totalIncome: number;
   totalExpenditure: number;
 }
@@ -50,8 +34,7 @@ interface MonthBucket {
 const getRepository = (): Repository<FinancialRecord> =>
   AppDataSource.getRepository(FinancialRecord);
 
-const formatPeriod = (year: number, monthIndex: number): string =>
-  `${MONTH_NAMES[monthIndex]} ${year}`;
+const formatPeriod = (date: Date): string => format(date, 'MMM yyyy');
 
 // Progress is a 0–100 score representing where a month sits within the
 // disposable-income range of the current window: best month → 100, worst → 0.
@@ -79,47 +62,34 @@ export const colourForProgress = (progress: number): FinancialHealthColour => {
   return 'red';
 };
 
-const buildBuckets = (
-  mostRecentYear: number,
-  mostRecentMonth: number,
-  lookbackMonths: number,
-): MonthBucket[] => {
-  const buckets: MonthBucket[] = [];
-  for (let offset = lookbackMonths - 1; offset >= 0; offset -= 1) {
-    const date = new Date(Date.UTC(mostRecentYear, mostRecentMonth - 1 - offset, 1));
-    buckets.push({
-      year: date.getUTCFullYear(),
-      monthIndex: date.getUTCMonth(),
-      totalIncome: 0,
-      totalExpenditure: 0,
-    });
-  }
-  return buckets;
+const initBuckets = (mostRecentMonth: UTCDate, lookbackMonths: number): MonthBucket[] => {
+  const oldestMonth = subMonths(mostRecentMonth, lookbackMonths - 1);
+  return Array.from({ length: lookbackMonths }, (_, offset) => ({
+    monthStart: addMonths(oldestMonth, offset),
+    totalIncome: 0,
+    totalExpenditure: 0,
+  }));
 };
 
-const bucketKey = (year: number, monthIndex: number): string => `${year}-${monthIndex}`;
+const bucketKey = (date: Date): string => format(date, 'yyyy-MM');
 
 export const getOverTimeProgress = async (
   options: OverTimeProgressOptions,
 ): Promise<ProgressPoint[]> => {
   const config = loadConfig();
-  const lookbackMonths = options.lookbackMonths ?? config.progressLookbackMonths;
-  const now = options.now ?? new Date();
-  const currentYear = now.getUTCFullYear();
-  const currentMonth = now.getUTCMonth() + 1;
+  const lookbackMonths = config.progressLookbackMonths;
+  const now = new UTCDate();
+  const currentMonthStart = startOfMonth(now);
 
-  const targetYear = currentYear;
-  const targetMonth = options.month ?? currentMonth;
+  const targetMonthStart =
+    options.month !== undefined
+      ? startOfMonth(new UTCDate(now.getUTCFullYear(), options.month - 1, 1))
+      : currentMonthStart;
 
-  const buckets = buildBuckets(targetYear, targetMonth, lookbackMonths);
+  const buckets = initBuckets(targetMonthStart, lookbackMonths);
 
-  const firstBucket = buckets[0];
-  const lastBucket = buckets[buckets.length - 1];
-  const windowStart = new Date(Date.UTC(firstBucket.year, firstBucket.monthIndex, 1, 0, 0, 0, 0));
-  const windowEndExclusive = new Date(
-    Date.UTC(lastBucket.year, lastBucket.monthIndex + 1, 1, 0, 0, 0, 0),
-  );
-  const windowEnd = new Date(windowEndExclusive.getTime() - 1);
+  const windowStart = buckets[0].monthStart;
+  const windowEnd = endOfMonth(buckets[buckets.length - 1].monthStart);
 
   const records = await getRepository().find({
     where: {
@@ -130,13 +100,11 @@ export const getOverTimeProgress = async (
 
   const bucketIndex = new Map<string, MonthBucket>();
   for (const bucket of buckets) {
-    bucketIndex.set(bucketKey(bucket.year, bucket.monthIndex), bucket);
+    bucketIndex.set(bucketKey(bucket.monthStart), bucket);
   }
 
   for (const record of records) {
-    const transactionDate = new Date(record.transactionDate);
-    const key = bucketKey(transactionDate.getUTCFullYear(), transactionDate.getUTCMonth());
-    const bucket = bucketIndex.get(key);
+    const bucket = bucketIndex.get(bucketKey(new UTCDate(record.transactionDate)));
     if (!bucket) {
       continue;
     }
@@ -158,10 +126,10 @@ export const getOverTimeProgress = async (
   const progresses = calculateProgressForWindow(disposableIncomes);
 
   return orderedBuckets.map((bucket, index) => ({
-    period: formatPeriod(bucket.year, bucket.monthIndex),
+    period: formatPeriod(bucket.monthStart),
     progress: progresses[index],
     disposable_income: disposableIncomes[index],
-    is_now: bucket.year === currentYear && bucket.monthIndex === currentMonth - 1,
+    is_now: isSameMonth(bucket.monthStart, currentMonthStart),
   }));
 };
 

@@ -5,6 +5,7 @@ import { createApp } from '../../src/app';
 import { loadConfig } from '../../src/config/env';
 import { AppDataSource } from '../../src/data-source';
 import { User } from '../../src/entities/user.entity';
+import { withDatabase } from '../utilities';
 
 const PASSWORD = 'correct horse battery staple';
 
@@ -21,18 +22,7 @@ const createUser = async (
 };
 
 describe('POST /auth/login (integration)', () => {
-  beforeAll(async () => {
-    await AppDataSource.initialize();
-    await AppDataSource.runMigrations();
-  });
-
-  afterAll(async () => {
-    await AppDataSource.destroy();
-  });
-
-  beforeEach(async () => {
-    await AppDataSource.query('TRUNCATE TABLE "users" RESTART IDENTITY CASCADE');
-  });
+  withDatabase();
 
   it('returns a signed JWT and the authenticated user for valid credentials', async () => {
     const user = await createUser();
