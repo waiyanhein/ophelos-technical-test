@@ -7,6 +7,11 @@
   box-shadow: var(--shadow-card);
 }
 
+.money-card--loading {
+  @apply text-ink-muted;
+  font-size: 14px;
+}
+
 .money-card__eyebrow {
   @apply text-ink-muted uppercase font-semibold;
   font-size: 12px;

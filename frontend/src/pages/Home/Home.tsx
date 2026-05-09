@@ -51,6 +51,7 @@ export function Home() {
   }, [throwAsync])
 
   const progress: ProgressPoint[] | null = dashboard?.overTimeProgress ?? null
+  const money = dashboard?.yourMoneyThisMonth ?? null
 
   return (
     <div className="home">
@@ -66,7 +67,13 @@ export function Home() {
               body={data.body}
             />
             <InsightCard body={data.insight} />
-            <MonthlyMoneyCard data={data.money} />
+            {money === null ? (
+              <article className="money-card money-card--loading" aria-busy="true">
+                Loading your money this month…
+              </article>
+            ) : (
+              <MonthlyMoneyCard data={money} />
+            )}
           </div>
           <div className="home__col home__col--secondary">
             {progress === null ? (

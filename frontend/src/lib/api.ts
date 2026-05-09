@@ -23,8 +23,31 @@ export type ProgressPoint = {
   is_now: boolean
 }
 
+export type MoneyItem = {
+  description: string
+  amount: number
+}
+
+export type MoneySection = {
+  sectionKey: string
+  sectionLabel: string
+  subtotal: number
+  items: MoneyItem[]
+}
+
+export type MoneyGroup = {
+  total: number
+  sections: MoneySection[]
+}
+
+export type YourMoneyThisMonth = {
+  income: MoneyGroup
+  outgoing: MoneyGroup
+}
+
 export type Dashboard = {
   overTimeProgress: ProgressPoint[]
+  yourMoneyThisMonth: YourMoneyThisMonth
 }
 
 export async function loginRequest(

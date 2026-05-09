@@ -19,8 +19,33 @@ export interface OverTimeProgressOptions {
   month?: number;
 }
 
+export interface YourMoneyItem {
+  description: string;
+  amount: number;
+}
+
+export interface YourMoneySection {
+  sectionKey: string;
+  sectionLabel: string;
+  subtotal: number;
+  items: YourMoneyItem[];
+}
+
+export interface YourMoneyGroup {
+  total: number;
+  sections: YourMoneySection[];
+}
+
+export interface YourMoneyThisMonth {
+  income: YourMoneyGroup;
+  outgoing: YourMoneyGroup;
+}
+
+export type YourMoneyThisMonthOptions = OverTimeProgressOptions;
+
 export interface Dashboard {
   overTimeProgress: ProgressPoint[];
+  yourMoneyThisMonth: YourMoneyThisMonth;
 }
 
 export type DashboardOptions = OverTimeProgressOptions;
@@ -133,7 +158,121 @@ export const getOverTimeProgress = async (
   }));
 };
 
+const INCOME_SECTION_KEY = 'income';
+const INCOME_SECTION_LABEL = 'Income';
+const UNCATEGORISED_SECTION_KEY = 'other';
+const UNCATEGORISED_SECTION_LABEL = 'Other';
+
+const round2 = (value: number): number => Math.round(value * 100) / 100;
+
+// Convert kebab-case (the storage shape of `type_category`) to the two
+// presentation forms the response needs. Doing it here means a future enum
+// value lights up the whole response without touching this file.
+const kebabToCamel = (value: string): string =>
+  value
+    .split('-')
+    .filter(Boolean)
+    .map((part, index) => (index === 0 ? part : part.charAt(0).toUpperCase() + part.slice(1)))
+    .join('');
+
+const kebabToTitle = (value: string): string =>
+  value
+    .split('-')
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+
+const sectionKeyForRecord = (record: FinancialRecord): string => {
+  if (record.type === 'income') return INCOME_SECTION_KEY;
+  if (!record.typeCategory) return UNCATEGORISED_SECTION_KEY;
+  return kebabToCamel(record.typeCategory);
+};
+
+const sectionLabelForRecord = (record: FinancialRecord): string => {
+  if (record.type === 'income') return INCOME_SECTION_LABEL;
+  if (!record.typeCategory) return UNCATEGORISED_SECTION_LABEL;
+  return kebabToTitle(record.typeCategory);
+};
+
+export const getYourMoneyThisMonth = async (
+  options: YourMoneyThisMonthOptions,
+): Promise<YourMoneyThisMonth> => {
+  const now = new UTCDate();
+  const targetMonthStart =
+    options.month !== undefined
+      ? startOfMonth(new UTCDate(now.getUTCFullYear(), options.month - 1, 1))
+      : startOfMonth(now);
+  const targetMonthEnd = endOfMonth(targetMonthStart);
+
+  const records = await getRepository().find({
+    where: {
+      userId: options.userId,
+      transactionDate: Between(targetMonthStart, targetMonthEnd),
+    },
+    order: { transactionDate: 'ASC', id: 'ASC' },
+  });
+
+  const buckets: Record<'income' | 'outgoing', Map<string, YourMoneySection>> = {
+    income: new Map(),
+    outgoing: new Map(),
+  };
+  const totals: Record<'income' | 'outgoing', number> = {
+    income: 0,
+    outgoing: 0,
+  };
+
+  for (const record of records) {
+    const amount = Number(record.amount);
+    totals[record.type] = round2(totals[record.type] + amount);
+
+    const key = sectionKeyForRecord(record);
+    let section = buckets[record.type].get(key);
+    if (!section) {
+      section = {
+        sectionKey: key,
+        sectionLabel: sectionLabelForRecord(record),
+        subtotal: 0,
+        items: [],
+      };
+      buckets[record.type].set(key, section);
+    }
+    section.subtotal = round2(section.subtotal + amount);
+
+    // Aggregate items sharing a description so the widget shows one row per
+    // recurring entry (e.g. two "Salary" records sum to a single "Salary" line).
+    const existingItem = section.items.find((i) => i.description === record.description);
+    if (existingItem) {
+      existingItem.amount = round2(existingItem.amount + amount);
+    } else {
+      section.items.push({ description: record.description, amount });
+    }
+  }
+
+  const buildGroup = (type: 'income' | 'outgoing'): YourMoneyGroup => {
+    const sections = Array.from(buckets[type].values()).sort((a, b) =>
+      a.sectionKey.localeCompare(b.sectionKey),
+    );
+    for (const section of sections) {
+      // Largest amount first within a section; alphabetical tiebreaker keeps
+      // the order deterministic across runs.
+      section.items.sort((a, b) => {
+        if (b.amount !== a.amount) return b.amount - a.amount;
+        return a.description.localeCompare(b.description);
+      });
+    }
+    return { total: totals[type], sections };
+  };
+
+  return {
+    income: buildGroup('income'),
+    outgoing: buildGroup('outgoing'),
+  };
+};
+
 export const getDashboard = async (options: DashboardOptions): Promise<Dashboard> => {
-  const overTimeProgress = await getOverTimeProgress(options);
-  return { overTimeProgress };
+  const [overTimeProgress, yourMoneyThisMonth] = await Promise.all([
+    getOverTimeProgress(options),
+    getYourMoneyThisMonth(options),
+  ]);
+  return { overTimeProgress, yourMoneyThisMonth };
 };

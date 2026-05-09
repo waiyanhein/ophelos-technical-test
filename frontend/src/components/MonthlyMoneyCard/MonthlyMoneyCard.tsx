@@ -1,9 +1,9 @@
-import { formatSignedCurrency, formatCurrency } from '../../lib/format'
-import type { MoneySection, MoneyThisMonth } from '../../data/mockFinances'
+import { formatCurrency, formatSignedCurrency } from '../../lib/format'
+import type { MoneyGroup, MoneySection, YourMoneyThisMonth } from '../../lib/api'
 import './MonthlyMoneyCard.css'
 
 type Props = {
-  data: MoneyThisMonth
+  data: YourMoneyThisMonth
 }
 
 export function MonthlyMoneyCard({ data }: Props) {
@@ -11,45 +11,97 @@ export function MonthlyMoneyCard({ data }: Props) {
     <article className="money-card">
       <h3 className="money-card__eyebrow">Your money this month</h3>
       <div className="money-card__sections">
-        {data.sections.map((section) => (
-          <Section key={section.title} section={section} />
-        ))}
+        <IncomeGroup group={data.income} />
+        <OutgoingGroup group={data.outgoing} />
       </div>
       <div className="money-card__outgoings">
-        <span className="money-card__outgoings-label">{data.outgoingsTotal.label}</span>
-        <span className="money-card__outgoings-amount">
-          {formatCurrency(data.outgoingsTotal.amount)}
-        </span>
+        <span className="money-card__outgoings-label">Total outgoings</span>
+        <span className="money-card__outgoings-amount">{formatCurrency(data.outgoing.total)}</span>
       </div>
     </article>
   )
 }
 
-function Section({ section }: { section: MoneySection }) {
-  const rowTone = section.rowTone ?? 'ink'
+function IncomeGroup({ group }: { group: MoneyGroup }) {
+  if (group.sections.length === 0) return null
+  return (
+    <>
+      {group.sections.map((section) => (
+        <Section
+          key={section.sectionKey}
+          section={section}
+          tone="success"
+          rowTone="success"
+          signed
+          showSubtotal
+          totalLabel="Total income"
+          totalAmount={group.total}
+        />
+      ))}
+    </>
+  )
+}
+
+function OutgoingGroup({ group }: { group: MoneyGroup }) {
+  return (
+    <>
+      {group.sections.map((section) => (
+        <Section
+          key={section.sectionKey}
+          section={section}
+          tone="accent"
+          rowTone="ink"
+        />
+      ))}
+    </>
+  )
+}
+
+type SectionProps = {
+  section: MoneySection
+  tone: 'success' | 'accent' | 'warning' | 'danger'
+  rowTone: 'success' | 'danger' | 'ink'
+  signed?: boolean
+  showSubtotal?: boolean
+  totalLabel?: string
+  totalAmount?: number
+}
+
+function Section({
+  section,
+  tone,
+  rowTone,
+  signed = false,
+  showSubtotal = false,
+  totalLabel,
+  totalAmount,
+}: SectionProps) {
   return (
     <section className="money-card__section">
-      <span className={`money-card__pill money-card__pill--${section.tone}`}>{section.title}</span>
+      <span className={`money-card__pill money-card__pill--${tone}`}>{section.sectionLabel}</span>
       <ul className="money-card__rows">
         {section.items.map((item) => (
-          <li className="money-card__item" key={item.label}>
+          <li className="money-card__item" key={item.description}>
             <div className="money-card__row">
-              <span className="money-card__row-label">{item.label}</span>
+              <span className="money-card__row-label">{item.description}</span>
               <span className={`money-card__row-amount money-card__row-amount--${rowTone}`}>
-                {item.signed ? formatSignedCurrency(item.amount) : formatCurrency(item.amount)}
+                {signed ? formatSignedCurrency(item.amount) : formatCurrency(item.amount)}
               </span>
             </div>
-            {item.note ? <p className="money-card__note">{item.note}</p> : null}
+            {/* Per-item suggestion notes (e.g. "you have 3 streaming
+                subscriptions…") are intentionally disabled until the
+                suggestion engine is built. */}
+            {/* {item.note ? <p className="money-card__note">{item.note}</p> : null} */}
           </li>
         ))}
-        {section.total ? (
+        {showSubtotal && totalLabel !== undefined && totalAmount !== undefined ? (
           <li className="money-card__item money-card__item--total">
             <div className="money-card__row">
               <span className="money-card__row-label money-card__row-label--total">
-                {section.total.label}
+                {totalLabel}
               </span>
               <span className={`money-card__row-amount money-card__row-amount--${rowTone}`}>
-                {formatCurrency(section.total.amount)}
+                {formatCurrency(totalAmount)}
               </span>
             </div>
           </li>
