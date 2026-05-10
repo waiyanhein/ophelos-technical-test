@@ -119,7 +119,7 @@ describe('GET /financial/dashboard — overTimeProgress (integration)', () => {
       ]);
 
       const response = await request(createApp())
-        .get('/financial/dashboard?month=03')
+        .get(`/financial/dashboard?month=03&year=${currentYear}`)
         .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
@@ -163,7 +163,7 @@ describe('GET /financial/dashboard — overTimeProgress (integration)', () => {
       ]);
     });
 
-    it('defaults to the current month and year when no month query parameter is provided', async () => {
+    it('defaults to the current month and year when no month and year query parameters are provided', async () => {
       const user = await createUser();
       const token = tokenForUser(user);
 
@@ -254,7 +254,7 @@ describe('GET /financial/dashboard — overTimeProgress (integration)', () => {
       ]);
 
       const response = await request(createApp())
-        .get('/financial/dashboard?month=06')
+        .get(`/financial/dashboard?month=06&year=${currentYear}`)
         .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
@@ -291,7 +291,7 @@ describe('GET /financial/dashboard — overTimeProgress (integration)', () => {
       await seedRecords(user.id, seeds);
 
       const response = await request(createApp())
-        .get('/financial/dashboard?month=06')
+        .get(`/financial/dashboard?month=06&year=${currentYear}`)
         .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
@@ -306,9 +306,10 @@ describe('GET /financial/dashboard — overTimeProgress (integration)', () => {
     it('returns zeroed buckets for months with no records', async () => {
       const user = await createUser();
       const token = tokenForUser(user);
+      const currentYear = getYear(new UTCDate());
 
       const response = await request(createApp())
-        .get('/financial/dashboard?month=06')
+        .get(`/financial/dashboard?month=06&year=${currentYear}`)
         .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
@@ -340,7 +341,7 @@ describe('GET /financial/dashboard — overTimeProgress (integration)', () => {
       ]);
 
       const response = await request(createApp())
-        .get('/financial/dashboard?month=03')
+        .get(`/financial/dashboard?month=03&year=${currentYear}`)
         .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
@@ -368,7 +369,7 @@ describe('GET /financial/dashboard — overTimeProgress (integration)', () => {
       ]);
 
       const response = await request(createApp())
-        .get('/financial/dashboard?month=06')
+        .get(`/financial/dashboard?month=06&year=${currentYear}`)
         .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
@@ -392,7 +393,7 @@ describe('GET /financial/dashboard — overTimeProgress (integration)', () => {
       ]);
 
       const response = await request(createApp())
-        .get('/financial/dashboard?month=06')
+        .get(`/financial/dashboard?month=06&year=${currentYear}`)
         .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
@@ -419,7 +420,7 @@ describe('GET /financial/dashboard — overTimeProgress (integration)', () => {
       ]);
 
       const response = await request(createApp())
-        .get('/financial/dashboard?month=06')
+        .get(`/financial/dashboard?month=06&year=${currentYear}`)
         .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
@@ -470,7 +471,7 @@ describe('GET /financial/dashboard — overTimeProgress (integration)', () => {
       ]);
 
       const response = await request(createApp())
-        .get('/financial/dashboard?month=02')
+        .get(`/financial/dashboard?month=02&year=${currentYear}`)
         .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);

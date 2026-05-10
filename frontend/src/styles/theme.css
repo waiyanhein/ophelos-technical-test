@@ -37,12 +37,9 @@
   --color-danger-soft: #f3c0bf;
 
   /* Typography */
-  --font-sans:
-    'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial,
-    sans-serif;
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --font-display:
-    'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial,
-    sans-serif;
+    'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 
   /* Radii */
   --radius-card: 10px;

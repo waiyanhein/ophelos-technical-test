@@ -16,10 +16,11 @@ financialRouter.get('/dashboard', async (req: Request, res: Response) => {
   }
 
   try {
-    const { month } = dashboardQuerySchema.parse(req.query);
+    const { month, year } = dashboardQuerySchema.parse(req.query);
     const result = await getDashboard({
       userId: authUser.id,
       month: month === undefined ? undefined : Number(month),
+      year: year === undefined ? undefined : Number(year),
     });
     res.status(200).json(result);
   } catch (error) {

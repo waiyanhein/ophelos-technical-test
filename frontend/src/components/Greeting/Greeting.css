@@ -2,6 +2,10 @@
 
 .greeting {
   @apply mb-6;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
 }
 
 .greeting__title {
@@ -13,4 +17,36 @@
 
 .greeting__sub {
   @apply text-ink-muted max-w-md;
+}
+
+.greeting__select-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.greeting__select {
+  @apply text-ink-muted;
+  font-size: 15px;
+  line-height: 1.5;
+  margin-bottom: 8px;
+  padding: 11px 40px 11px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--color-line);
+  background-color: var(--color-surface);
+  color: var(--color-ink);
+  appearance: none;
+  cursor: pointer;
+  option {
+    background-color: var(--color-surface);
+    color: var(--color-ink);
+  }
+}
+
+.greeting__select-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%) translateY(-4px); /* adjust for margin-bottom */
+  pointer-events: none;
+  color: var(--color-ink-muted);
 }

@@ -64,7 +64,7 @@ describe('GET /financial/dashboard — financialHealthStatus (integration)', () 
     ]);
 
     const response = await request(createApp())
-      .get(`/financial/dashboard?month=${monthQuery(5)}`)
+      .get(`/financial/dashboard?month=${monthQuery(5)}&year=${currentYear}`)
       .set('Authorization', `Bearer ${token}`);
 
     expect(response.status).toBe(200);
@@ -113,7 +113,7 @@ describe('GET /financial/dashboard — financialHealthStatus (integration)', () 
     ]);
 
     const response = await request(createApp())
-      .get(`/financial/dashboard?month=${monthQuery(5)}`)
+      .get(`/financial/dashboard?month=${monthQuery(5)}&year=${currentYear}`)
       .set('Authorization', `Bearer ${token}`);
 
     expect(response.status).toBe(200);
@@ -158,7 +158,7 @@ describe('GET /financial/dashboard — financialHealthStatus (integration)', () 
     ]);
 
     const response = await request(createApp())
-      .get(`/financial/dashboard?month=${monthQuery(5)}`)
+      .get(`/financial/dashboard?month=${monthQuery(5)}&year=${currentYear}`)
       .set('Authorization', `Bearer ${token}`);
 
     expect(response.status).toBe(200);
@@ -170,9 +170,10 @@ describe('GET /financial/dashboard — financialHealthStatus (integration)', () 
   it('returns a red status with zero disposable income when the user has no records at all', async () => {
     const user = await createUser();
     const token = tokenForUser(user);
+    const currentYear = getYear(new UTCDate());
 
     const response = await request(createApp())
-      .get(`/financial/dashboard?month=${monthQuery(5)}`)
+      .get(`/financial/dashboard?month=${monthQuery(5)}&year=${currentYear}`)
       .set('Authorization', `Bearer ${token}`);
 
     expect(response.status).toBe(200);

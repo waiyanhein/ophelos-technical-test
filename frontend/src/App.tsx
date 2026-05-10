@@ -1,11 +1,11 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { AuthProvider } from './lib/auth-context'
-import { ErrorBoundary } from './components/ErrorBoundary/ErrorBoundary'
-import { ProtectedRoute } from './components/ProtectedRoute/ProtectedRoute'
-import { PublicOnlyRoute } from './components/PublicOnlyRoute/PublicOnlyRoute'
-import { Index } from './pages/Index/Index'
-import { Login } from './pages/Login/Login'
-import { Home } from './pages/Home/Home'
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './lib/auth-context';
+import { ErrorBoundary } from './components/ErrorBoundary/ErrorBoundary';
+import { ProtectedRoute } from './components/ProtectedRoute/ProtectedRoute';
+import { PublicOnlyRoute } from './components/PublicOnlyRoute/PublicOnlyRoute';
+import { Index } from './pages/Index/Index';
+import { Login } from './pages/Login/Login';
+import { Dashboard } from './pages/Dashboard/Dashboard';
 
 function App() {
   return (
@@ -18,13 +18,13 @@ function App() {
               <Route path="/login" element={<Login />} />
             </Route>
             <Route element={<ProtectedRoute />}>
-              <Route path="/dashboard" element={<Home />} />
+              <Route path="/dashboard" element={<Dashboard />} />
             </Route>
           </Routes>
         </BrowserRouter>
       </AuthProvider>
     </ErrorBoundary>
-  )
+  );
 }
 
-export default App
+export default App;

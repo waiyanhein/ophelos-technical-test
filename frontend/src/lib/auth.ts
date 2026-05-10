@@ -1,43 +1,43 @@
-const TOKEN_KEY = 'auth_token'
-const USER_KEY = 'auth_user'
+const TOKEN_KEY = 'auth_token';
+const USER_KEY = 'auth_user';
 
 export type User = {
-  id: string
-  name: string
-  email: string
-}
+  id: string;
+  name: string;
+  email: string;
+};
 
 export function getToken(): string | null {
-  return localStorage.getItem(TOKEN_KEY)
+  return localStorage.getItem(TOKEN_KEY);
 }
 
 export function setToken(token: string): void {
-  localStorage.setItem(TOKEN_KEY, token)
+  localStorage.setItem(TOKEN_KEY, token);
 }
 
 export function clearToken(): void {
-  localStorage.removeItem(TOKEN_KEY)
+  localStorage.removeItem(TOKEN_KEY);
 }
 
 export function getStoredUser(): User | null {
-  const raw = localStorage.getItem(USER_KEY)
-  if (!raw) return null
+  const raw = localStorage.getItem(USER_KEY);
+  if (!raw) return null;
   try {
     const parsed = JSON.parse(raw);
     return { id: parsed.id, name: parsed.name, email: parsed.email };
   } catch {
-    return null
+    return null;
   }
 }
 
 export function setStoredUser(user: User): void {
-  localStorage.setItem(USER_KEY, JSON.stringify(user))
+  localStorage.setItem(USER_KEY, JSON.stringify(user));
 }
 
 export function clearStoredUser(): void {
-  localStorage.removeItem(USER_KEY)
+  localStorage.removeItem(USER_KEY);
 }
 
 export function isLoggedIn(): boolean {
-  return Boolean(getToken())
+  return Boolean(getToken());
 }

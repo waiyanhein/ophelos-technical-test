@@ -62,7 +62,9 @@
   font-size: 15px;
   padding: 12px 16px;
   border-radius: 8px;
-  transition: opacity 120ms ease, transform 120ms ease;
+  transition:
+    opacity 120ms ease,
+    transform 120ms ease;
 }
 
 .error-boundary__button:hover {

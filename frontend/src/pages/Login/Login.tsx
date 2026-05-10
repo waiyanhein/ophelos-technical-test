@@ -1,34 +1,34 @@
-import { useState, type FormEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../../lib/auth-context'
-import { ApiError } from '../../lib/api'
-import { useThrowAsyncError } from '../../lib/use-throw-async-error'
-import './Login.css'
+import { useState, type FormEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../lib/auth-context';
+import { ApiError } from '../../lib/api';
+import { useThrowAsyncError } from '../../lib/use-throw-async-error';
+import './Login.css';
 
 export function Login() {
-  const navigate = useNavigate()
-  const { login } = useAuth()
-  const throwAsyncError = useThrowAsyncError()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const [submitting, setSubmitting] = useState(false)
+  const navigate = useNavigate();
+  const { login } = useAuth();
+  const throwAsyncError = useThrowAsyncError();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    setError(null)
-    setSubmitting(true)
+    event.preventDefault();
+    setError(null);
+    setSubmitting(true);
     try {
-      await login(email, password)
-      navigate('/dashboard', { replace: true })
+      await login(email, password);
+      navigate('/dashboard', { replace: true });
     } catch (err) {
       if (err instanceof ApiError) {
-        setError(err.message)
+        setError(err.message);
       } else {
-        throwAsyncError(err)
+        throwAsyncError(err);
       }
     } finally {
-      setSubmitting(false)
+      setSubmitting(false);
     }
   }
 
@@ -78,5 +78,5 @@ export function Login() {
         </article>
       </main>
     </div>
-  )
+  );
 }

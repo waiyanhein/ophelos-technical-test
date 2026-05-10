@@ -82,7 +82,7 @@ describe('GET /financial/dashboard — recommendations (integration)', () => {
     ]);
 
     const response = await request(createApp())
-      .get(`/financial/dashboard?month=${monthQuery(5)}`)
+      .get(`/financial/dashboard?month=${monthQuery(5)}&year=${currentYear}`)
       .set('Authorization', `Bearer ${token}`);
 
     expect(response.status).toBe(200);
@@ -113,7 +113,7 @@ describe('GET /financial/dashboard — recommendations (integration)', () => {
     ]);
 
     await request(createApp())
-      .get(`/financial/dashboard?month=${monthQuery(5)}`)
+      .get(`/financial/dashboard?month=${monthQuery(5)}&year=${currentYear}`)
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
 
@@ -154,7 +154,7 @@ describe('GET /financial/dashboard — recommendations (integration)', () => {
       ]);
 
       const response = await request(createApp())
-        .get(`/financial/dashboard?month=${monthQuery(5)}`)
+        .get(`/financial/dashboard?month=${monthQuery(5)}&year=${currentYear}`)
         .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
@@ -166,9 +166,9 @@ describe('GET /financial/dashboard — recommendations (integration)', () => {
     it('returns an empty recommendations array on empty financial records (no income, no outgoings)', async () => {
       const user = await createUser();
       const token = tokenForUser(user);
-
+      const currentYear = getYear(new UTCDate());
       const response = await request(createApp())
-        .get(`/financial/dashboard?month=${monthQuery(5)}`)
+        .get(`/financial/dashboard?month=${monthQuery(5)}&year=${currentYear}`)
         .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
@@ -213,7 +213,7 @@ describe('GET /financial/dashboard — recommendations (integration)', () => {
       ]);
 
       await request(createApp())
-        .get(`/financial/dashboard?month=${monthQuery(5)}`)
+        .get(`/financial/dashboard?month=${monthQuery(5)}&year=${currentYear}`)
         .set('Authorization', `Bearer ${token}`)
         .expect(200);
 
@@ -257,7 +257,7 @@ describe('GET /financial/dashboard — recommendations (integration)', () => {
       ]);
 
       await request(createApp())
-        .get(`/financial/dashboard?month=${monthQuery(5)}`)
+        .get(`/financial/dashboard?month=${monthQuery(5)}&year=${currentYear}`)
         .set('Authorization', `Bearer ${token}`)
         .expect(200);
 
@@ -301,7 +301,7 @@ describe('GET /financial/dashboard — recommendations (integration)', () => {
       ]);
 
       await request(createApp())
-        .get(`/financial/dashboard?month=${monthQuery(5)}`)
+        .get(`/financial/dashboard?month=${monthQuery(5)}&year=${currentYear}`)
         .set('Authorization', `Bearer ${token}`)
         .expect(200);
 

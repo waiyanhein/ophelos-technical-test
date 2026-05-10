@@ -1,8 +1,28 @@
-# Features
+# Problems
+- "no reflection of their financial position"
+- "no sense of whether their repayment options are realistic"
+- "no way to track whether things are getting better or worse over time."
+
+# Requirements
+## Must
+- Calculate and display a meaningful affordability assessment to the customer
+- Allow customers to track their financial position over time
+- Be well tested. Tests should protect something real, not just assert happy paths
+
+# Pages
+- Due to the limited time I've got, I would build a simple dashboard page as all the requirements can be implmented and re-represented 
+TODO
+
+
+# Product Features
+## The Affordability Assessment
+Given that we have the customer's income and expenditure data, we can easily calculate Disposable Income, which is the first number they need to understand their financial position.
+
+
+
 ## Login
 
 ## Financial Health Status Widget
-
 
 ## Monthly Spending Widget
 
@@ -17,7 +37,6 @@
 
 - The widget also suggests ways customers can adjust their discretionary spending and improve their spending habits to help repay debt earlier.
   - For example, it may suggest cancelling one of the streaming subscriptions if the customer has subscriptions to Netflix, Disney+, and Amazon Prime.
-
 
 ## Progress Over Time Widget
 

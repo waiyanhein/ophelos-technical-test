@@ -39,56 +39,57 @@ export interface DiscretionaryItem {
   amount: number;
 }
 
-export interface ProgressPoint {
+export type ProgressPoint = {
   period: string;
   progress: number;
   disposable_income: number;
   is_now: boolean;
-}
+};
 
-export interface OverTimeProgressOptions {
+export type OverTimeProgressOptions = {
   userId: string;
   month?: number;
-}
+  year?: number;
+};
 
-export interface YourMoneyItem {
+export type YourMoneyItem = {
   description: string;
   amount: number;
-}
+};
 
-export interface YourMoneySection {
+export type YourMoneySection = {
   sectionKey: string;
   sectionLabel: string;
   subtotal: number;
   items: YourMoneyItem[];
-}
+};
 
-export interface YourMoneyGroup {
+export type YourMoneyGroup = {
   total: number;
   sections: YourMoneySection[];
-}
+};
 
-export interface YourMoneyThisMonth {
+export type YourMoneyThisMonth = {
   income: YourMoneyGroup;
   outgoing: YourMoneyGroup;
-}
+};
 
 export type YourMoneyThisMonthOptions = OverTimeProgressOptions;
 
-export interface Dashboard {
+export type Dashboard = {
   overTimeProgress: ProgressPoint[];
   yourMoneyThisMonth: YourMoneyThisMonth;
   financialHealthStatus: FinancialHealthStatus;
   recommendations: string[];
-}
+};
 
 export type DashboardOptions = OverTimeProgressOptions;
 
-interface MonthBucket {
+type MonthBucket = {
   monthStart: UTCDate;
   totalIncome: number;
   totalExpenditure: number;
-}
+};
 
 const getRepository = (): Repository<FinancialRecord> =>
   AppDataSource.getRepository(FinancialRecord);
@@ -134,10 +135,10 @@ export const getOverTimeProgress = async (
   const now = new UTCDate();
   const currentMonthStart = startOfMonth(now);
 
-  const targetMonthStart =
-    options.month !== undefined
-      ? startOfMonth(new UTCDate(now.getUTCFullYear(), options.month - 1, 1))
-      : currentMonthStart;
+  let targetMonthStart = currentMonthStart;
+  if (options.month && options.year) {
+    targetMonthStart = startOfMonth(new UTCDate(options.year, options.month - 1, 1));
+  }
 
   const buckets = initBuckets(targetMonthStart, lookbackMonths);
 
@@ -227,8 +228,8 @@ export const getYourMoneyThisMonth = async (
 ): Promise<YourMoneyThisMonth> => {
   const now = new UTCDate();
   const targetMonthStart =
-    options.month !== undefined
-      ? startOfMonth(new UTCDate(now.getUTCFullYear(), options.month - 1, 1))
+    options.month && options.year
+      ? startOfMonth(new UTCDate(options.year, options.month - 1, 1))
       : startOfMonth(now);
   const targetMonthEnd = endOfMonth(targetMonthStart);
 
@@ -414,8 +415,8 @@ export const extractDiscretionaryItems = (
 const getRecordsForMonth = async (options: DashboardOptions): Promise<FinancialRecord[]> => {
   const now = new UTCDate();
   const targetMonthStart =
-    options.month !== undefined
-      ? startOfMonth(new UTCDate(now.getUTCFullYear(), options.month - 1, 1))
+    options.month && options.year
+      ? startOfMonth(new UTCDate(options.year, options.month - 1, 1))
       : startOfMonth(now);
   const targetMonthEnd = endOfMonth(targetMonthStart);
 

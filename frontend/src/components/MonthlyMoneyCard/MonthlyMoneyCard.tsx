@@ -1,10 +1,10 @@
-import { formatCurrency, formatSignedCurrency } from '../../lib/format'
-import type { MoneyGroup, MoneySection, YourMoneyThisMonth } from '../../lib/api'
-import './MonthlyMoneyCard.css'
+import { formatCurrency, formatSignedCurrency } from '../../lib/format';
+import type { MoneyGroup, MoneySection, YourMoneyThisMonth } from '../../lib/api';
+import './MonthlyMoneyCard.css';
 
 type Props = {
-  data: YourMoneyThisMonth
-}
+  data: YourMoneyThisMonth;
+};
 
 export function MonthlyMoneyCard({ data }: Props) {
   return (
@@ -19,11 +19,11 @@ export function MonthlyMoneyCard({ data }: Props) {
         <span className="money-card__outgoings-amount">{formatCurrency(data.outgoing.total)}</span>
       </div>
     </article>
-  )
+  );
 }
 
 function IncomeGroup({ group }: { group: MoneyGroup }) {
-  if (group.sections.length === 0) return null
+  if (group.sections.length === 0) return null;
   return (
     <>
       {group.sections.map((section) => (
@@ -39,33 +39,28 @@ function IncomeGroup({ group }: { group: MoneyGroup }) {
         />
       ))}
     </>
-  )
+  );
 }
 
 function OutgoingGroup({ group }: { group: MoneyGroup }) {
   return (
     <>
       {group.sections.map((section) => (
-        <Section
-          key={section.sectionKey}
-          section={section}
-          tone="accent"
-          rowTone="ink"
-        />
+        <Section key={section.sectionKey} section={section} tone="accent" rowTone="ink" />
       ))}
     </>
-  )
+  );
 }
 
 type SectionProps = {
-  section: MoneySection
-  tone: 'success' | 'accent' | 'warning' | 'danger'
-  rowTone: 'success' | 'danger' | 'ink'
-  signed?: boolean
-  showSubtotal?: boolean
-  totalLabel?: string
-  totalAmount?: number
-}
+  section: MoneySection;
+  tone: 'success' | 'accent' | 'warning' | 'danger';
+  rowTone: 'success' | 'danger' | 'ink';
+  signed?: boolean;
+  showSubtotal?: boolean;
+  totalLabel?: string;
+  totalAmount?: number;
+};
 
 function Section({
   section,
@@ -108,5 +103,5 @@ function Section({
         ) : null}
       </ul>
     </section>
-  )
+  );
 }

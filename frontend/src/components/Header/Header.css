@@ -10,7 +10,7 @@
 }
 
 .site-header__brand {
-  @apply text-ink font-semibold text-base no-underline;
+  @apply text-ink font-semibold text-base no-underline text-xl;
 }
 
 .site-header__meta {

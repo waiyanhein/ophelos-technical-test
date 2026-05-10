@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "test": "npm run test --prefix backend",
-    "format:code": "npm run format:code --prefix backend",
+    "format:code": "npm run format:code --prefix backend && npm run format --prefix frontend",
     "dev:up": "docker compose -f docker-compose.yaml up -d",
     "test:up": "docker compose -f docker-compose.test.yaml up -d",
     "fe:dev": "npm run dev --prefix frontend",

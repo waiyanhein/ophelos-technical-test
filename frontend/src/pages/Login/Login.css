@@ -64,7 +64,9 @@
   padding: 11px 14px;
   border-radius: 8px;
   outline: none;
-  transition: border-color 120ms ease, box-shadow 120ms ease;
+  transition:
+    border-color 120ms ease,
+    box-shadow 120ms ease;
 }
 
 .login__input::placeholder {
@@ -88,7 +90,9 @@
   padding: 12px 16px;
   border-radius: 8px;
   margin-top: 6px;
-  transition: opacity 120ms ease, transform 120ms ease;
+  transition:
+    opacity 120ms ease,
+    transform 120ms ease;
 }
 
 .login__button:hover {

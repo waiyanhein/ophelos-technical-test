@@ -1,29 +1,27 @@
-import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../../lib/auth-context'
-import './Header.css'
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../lib/auth-context';
+import './Header.css';
 
 type Props = {
-  period: string
-  email: string
-}
+  email: string;
+};
 
-export function Header({ period, email }: Props) {
-  const navigate = useNavigate()
-  const { logout } = useAuth()
+export function Header({ email }: Props) {
+  const navigate = useNavigate();
+  const { logout } = useAuth();
 
   function handleSignOut() {
-    logout()
-    navigate('/login', { replace: true })
+    logout();
+    navigate('/login', { replace: true });
   }
 
   return (
     <header className="site-header">
       <div className="site-header__inner">
-        <a href="/" className="site-header__brand">
+        <Link to="/dashboard" className="site-header__brand">
           Ophelos
-        </a>
+        </Link>
         <nav className="site-header__meta">
-          <span className="site-header__period">{period}</span>
           <span className="site-header__email">{email}</span>
           <button type="button" className="site-header__signout" onClick={handleSignOut}>
             Sign out
@@ -31,5 +29,5 @@ export function Header({ period, email }: Props) {
         </nav>
       </div>
     </header>
-  )
+  );
 }
