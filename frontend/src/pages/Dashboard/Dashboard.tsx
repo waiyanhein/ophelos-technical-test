@@ -1,5 +1,5 @@
 import { Header } from '../../components/Header/Header';
-import { Greeting } from '../../components/Greeting/Greeting';
+import { Greeting } from './Greeting/Greeting';
 import { LeftoverCard } from '../../components/LeftoverCard/LeftoverCard';
 import { RecommendationsCard } from '../../components/RecommendationsCard/RecommendationsCard';
 import { MonthlyMoneyCard } from '../../components/MonthlyMoneyCard/MonthlyMoneyCard';
@@ -10,6 +10,9 @@ import { type ProgressPoint } from '../../lib/api';
 import { formatCurrency } from '../../lib/format';
 import './Dashboard.css';
 import { DashoboardProvider, useDashboardContext } from './DashboardContext';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+import { useRef } from 'react';
 
 /**
  * @TODO - move this business logic to the backend.
@@ -32,6 +35,7 @@ const DashboardContent = () => {
   const { user } = useAuth();
   const firstName = user?.name.trim().split(/\s+/)[0] ?? '';
   const email = user?.email ?? '';
+  const pdfRef = useRef<HTMLDivElement>(null);
 
   const { dashboard } = useDashboardContext();
 
@@ -40,11 +44,31 @@ const DashboardContent = () => {
   const recommendations = dashboard?.recommendations ?? [];
   const health = dashboard?.financialHealthStatus ?? null;
 
+  const onDownloadPdf = async () => {
+    const input = pdfRef.current;
+    if (!input) return;
+    const canvas = await html2canvas(input, {
+      scale: 2,
+    });
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'px',
+      format: 'a4',
+    });
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+
+    pdf.save('document.pdf');
+  };
+
   return (
-    <div className="home">
+    <div className="home" ref={pdfRef}>
       <Header email={email} />
       <main className="home__main">
-        <Greeting firstName={firstName} />
+        <Greeting firstName={firstName} onDownloadPdf={onDownloadPdf} />
         <div className="home__grid">
           <div className="home__col home__col--primary">
             {health === null ? (

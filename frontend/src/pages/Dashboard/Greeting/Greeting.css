@@ -1,4 +1,4 @@
-@reference "../../index.css";
+@reference "../../../index.css";
 
 .greeting {
   @apply mb-6;
@@ -17,6 +17,24 @@
 
 .greeting__sub {
   @apply text-ink-muted max-w-md;
+}
+
+.greeting__actions {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.greeting__download {
+  font-size: 15px;
+  line-height: 1.5;
+  margin-bottom: 8px;
+  padding: 11px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--color-line);
+  background-color: var(--color-surface);
+  color: var(--color-ink);
+  cursor: pointer;
 }
 
 .greeting__select-wrapper {

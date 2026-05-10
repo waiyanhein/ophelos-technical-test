@@ -5,6 +5,7 @@ import { useThrowAsyncError } from '../../lib/use-throw-async-error';
 type DashboardContextType = {
   dashboard: DashboardResDto | null;
   setDashboard: (dashboard: DashboardResDto) => void;
+  period: Date | null;
   handlePeriodChange: (date: string) => void;
 };
 
@@ -13,19 +14,14 @@ const DashboardContext = createContext<DashboardContextType | null>(null);
 export const DashoboardProvider = ({ children }: { children: React.ReactNode }) => {
   const throwAsync = useThrowAsyncError();
   const [dashboard, setDashboard] = useState<DashboardResDto | null>(null);
-  const [period, setPeriod] = useState<string | null>(null);
+  const [period, setPeriod] = useState<Date>(new Date());
 
   useEffect(() => {
     let cancelled = false;
-    let qsYear: string | undefined;
-    let qsMonth: string | undefined;
-    if (period) {
-      const date = new Date(period);
-      qsYear = date.getFullYear().toString();
-      // pad 0 if needed
-      const month = date.getMonth() + 1;
-      qsMonth = month < 10 ? `0${month}` : month.toString();
-    }
+    const qsYear = period.getFullYear().toString();
+    // pad 0 if needed
+    const month = period.getMonth() + 1;
+    const qsMonth = month < 10 ? `0${month}` : month.toString();
     fetchDashboard(qsMonth, qsYear)
       .then((data) => {
         if (!cancelled) setDashboard(data);
@@ -38,13 +34,13 @@ export const DashoboardProvider = ({ children }: { children: React.ReactNode }) 
     };
   }, [throwAsync, period]);
 
-  const handlePeriodChange = (selectedPeriod: string) => {
+  const handlePeriodChange = (periodStr: string) => {
     setDashboard(null);
-    setPeriod(selectedPeriod);
+    setPeriod(new Date(periodStr));
   };
 
   return (
-    <DashboardContext.Provider value={{ dashboard, setDashboard, handlePeriodChange }}>
+    <DashboardContext.Provider value={{ dashboard, setDashboard, period, handlePeriodChange }}>
       {children}
     </DashboardContext.Provider>
   );
