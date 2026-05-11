@@ -1,8 +1,15 @@
 import { createContext, useContext, useEffect, useRef, useState, type RefObject } from 'react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-import { createSharableStatement, fetchDashboard, type DashboardResDto } from '../../lib/api';
+import {
+  createSharableStatement,
+  fetchDashboard,
+  fetchSharableStatement,
+  type DashboardResDto,
+} from '../../lib/api';
 import { useThrowAsyncError } from '../../lib/use-throw-async-error';
+import { useAuth } from '../../lib/auth-context';
+import type { User } from '../../lib/auth';
 
 const FE_APP_BASE_URL: string =
   import.meta.env.VITE_FE_APP_BASE_URL ??
@@ -20,18 +27,29 @@ type DashboardContextType = {
   isSharing: boolean;
   onShareStatement: () => Promise<void>;
   onDismissSharableUrl: () => void;
+  user: User | null;
+  isShared: boolean;
 };
 
 const DashboardContext = createContext<DashboardContextType | null>(null);
 
-export const DashoboardProvider = ({ children }: { children: React.ReactNode }) => {
+type DashboardProviderProps = {
+  children: React.ReactNode;
+  shareToken?: string;
+};
+
+export const DashoboardProvider = ({ children, shareToken }: DashboardProviderProps) => {
   const throwAsync = useThrowAsyncError();
+  const { user: authUser } = useAuth();
   const [dashboard, setDashboard] = useState<DashboardResDto | null>(null);
   const [period, setPeriod] = useState<Date>(new Date());
   const [sharableUrl, setSharableUrl] = useState<string | null>(null);
   const [shareError, setShareError] = useState<string | null>(null);
   const [isSharing, setIsSharing] = useState<boolean>(false);
+  const [sharedUser, setSharedUser] = useState<User | null>(null);
   const pdfRef = useRef<HTMLDivElement>(null);
+
+  const isShared = Boolean(shareToken);
 
   const getPeriodQueryParts = (): { month: string; year: string } => {
     const year = period.getFullYear().toString();
@@ -42,8 +60,24 @@ export const DashoboardProvider = ({ children }: { children: React.ReactNode }) 
 
   useEffect(() => {
     let cancelled = false;
+
+    if (shareToken) {
+      fetchSharableStatement(shareToken)
+        .then((response) => {
+          if (cancelled) return;
+          setDashboard(response.data);
+          setSharedUser(response.user);
+          setPeriod(new Date(response.createdAt));
+        })
+        .catch((error: unknown) => {
+          if (!cancelled) throwAsync(error);
+        });
+      return () => {
+        cancelled = true;
+      };
+    }
+
     const qsYear = period.getFullYear().toString();
-    // pad 0 if needed
     const month = period.getMonth() + 1;
     const qsMonth = month < 10 ? `0${month}` : month.toString();
     fetchDashboard(qsMonth, qsYear)
@@ -56,7 +90,7 @@ export const DashoboardProvider = ({ children }: { children: React.ReactNode }) 
     return () => {
       cancelled = true;
     };
-  }, [throwAsync, period]);
+  }, [throwAsync, period, shareToken]);
 
   const handlePeriodChange = (periodStr: string) => {
     setDashboard(null);
@@ -119,6 +153,8 @@ export const DashoboardProvider = ({ children }: { children: React.ReactNode }) 
         isSharing,
         onShareStatement,
         onDismissSharableUrl,
+        user: isShared ? sharedUser : authUser,
+        isShared,
       }}
     >
       {children}

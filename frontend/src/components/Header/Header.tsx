@@ -1,10 +1,12 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../lib/auth-context';
+import { useDashboardContext } from '../../pages/Dashboard/DashboardContext';
 import './Header.css';
 
 export function Header() {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
+  const { user, isShared } = useDashboardContext();
 
   function handleSignOut() {
     logout();
@@ -14,14 +16,20 @@ export function Header() {
   return (
     <header className="site-header">
       <div className="site-header__inner">
-        <Link to="/dashboard" className="site-header__brand">
-          Ophelos
-        </Link>
+        {isShared ? (
+          <span className="site-header__brand">Ophelos</span>
+        ) : (
+          <Link to="/dashboard" className="site-header__brand">
+            Ophelos
+          </Link>
+        )}
         <nav className="site-header__meta">
           <span className="site-header__email">{user?.email ?? ''}</span>
-          <button type="button" className="site-header__signout" onClick={handleSignOut}>
-            Sign out
-          </button>
+          {!isShared ? (
+            <button type="button" className="site-header__signout" onClick={handleSignOut}>
+              Sign out
+            </button>
+          ) : null}
         </nav>
       </div>
     </header>

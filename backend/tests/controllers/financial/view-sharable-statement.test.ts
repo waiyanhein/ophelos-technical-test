@@ -1,6 +1,6 @@
 import { UTCDate } from '@date-fns/utc';
 import { withDatabase, withMockDateAll } from '../../utilities';
-import { createUser, seedRecords, tokenForUser, utc } from './helpers';
+import { createUser, seedRecords, utc } from './helpers';
 import { addDays, getYear } from 'date-fns';
 import { AppDataSource } from '../../../src/data-source';
 import { SharableLink } from '../../../src/entities/sharable-link.entity';
@@ -8,8 +8,6 @@ import { FinancialStatement } from '../../../src/entities/financial-statement.en
 import { getDashboard } from '../../../src/services/financial.service';
 import { createApp } from '../../../src/app';
 import request from 'supertest';
-import { loadConfig } from '../../../src/config/env';
-import jwt from 'jsonwebtoken';
 
 const fakeToken = `Q7j5J0Qv4x6M6n6A5h3q9Q2kWmTnQ7j5J0Qv4x6M6n6A5h3q9Q2kWmTn`;
 const sharableLinkRespository = AppDataSource.getRepository(SharableLink);
@@ -23,47 +21,8 @@ describe('GET /financial/sharable-statement/:token', () => {
   withMockDateAll(mockDate);
   withDatabase();
 
-  describe('authentication', () => {
-    it('returns 401 when no Authorization header is sent', async () => {
-      const response = await request(createApp()).post('/financial/statement');
-      expect(response.status).toBe(401);
-      expect(response.body).toEqual({
-        error: 'Missing or malformed authorization header',
-      });
-    });
-
-    it('returns 401 when the Authorization header is malformed', async () => {
-      const response = await request(createApp())
-        .post('/financial/statement')
-        .set('Authorization', 'NotBearer abc');
-      expect(response.status).toBe(401);
-    });
-
-    it('returns 401 when the JWT signature is invalid', async () => {
-      const response = await request(createApp())
-        .get('/financial/sharable-statement')
-        .set('Authorization', 'Bearer not-a-real-token');
-      expect(response.status).toBe(401);
-      expect(response.body).toEqual({ error: 'Invalid token' });
-    });
-
-    it('returns 401 when the JWT has expired', async () => {
-      const user = await createUser();
-      const { jwtSecret } = loadConfig();
-      const expired = jwt.sign({ userId: user.id, email: user.email }, jwtSecret, {
-        expiresIn: '-1s',
-      });
-      const response = await request(createApp())
-        .get('/financial/sharable-statement')
-        .set('Authorization', `Bearer ${expired}`);
-      expect(response.status).toBe(401);
-      expect(response.body).toEqual({ error: 'Token has expired' });
-    });
-  });
-
   it(`should return the financial statement data if the token is valid`, async () => {
     const user = await createUser();
-    const authToken = tokenForUser(user);
     const currentYear = getYear(new UTCDate());
     await seedRecords(user.id, [
       // Jan: 1200 - 1000 = 200
@@ -112,7 +71,6 @@ describe('GET /financial/sharable-statement/:token', () => {
 
     const response = await request(createApp())
       .get('/financial/sharable-statement')
-      .set('Authorization', `Bearer ${authToken}`)
       .query({ token: fakeToken });
 
     expect(response.status).toBe(200);
@@ -129,21 +87,16 @@ describe('GET /financial/sharable-statement/:token', () => {
   });
 
   it(`should return error if the token is not provided`, async () => {
-    const user = await createUser();
-    const authToken = tokenForUser(user);
-    const response = await request(createApp())
-      .get('/financial/sharable-statement')
-      .set('Authorization', `Bearer ${authToken}`);
+    await createUser();
+    const response = await request(createApp()).get('/financial/sharable-statement');
     expect(response.status).toBe(400);
     expect(response.body).toEqual({ error: 'Token is required' });
   });
 
   it(`should return error if the token does not exist`, async () => {
-    const user = await createUser();
-    const authToken = tokenForUser(user);
+    await createUser();
     const response = await request(createApp())
       .get('/financial/sharable-statement')
-      .set('Authorization', `Bearer ${authToken}`)
       .query({ token: 'invalid-token' });
     expect(response.status).toBe(404);
     expect(response.body).toEqual({ error: 'Sharable link not found' });
@@ -151,7 +104,6 @@ describe('GET /financial/sharable-statement/:token', () => {
 
   it(`should return error if the token is expired`, async () => {
     const user = await createUser();
-    const authToken = tokenForUser(user);
     const currentYear = getYear(new UTCDate());
 
     const dashboard = await getDashboard({
@@ -175,7 +127,6 @@ describe('GET /financial/sharable-statement/:token', () => {
 
     const response = await request(createApp())
       .get('/financial/sharable-statement')
-      .set('Authorization', `Bearer ${authToken}`)
       .query({ token: fakeToken });
 
     expect(response.status).toBe(404);

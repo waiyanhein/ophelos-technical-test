@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useAuth } from '../../../lib/auth-context';
 import { useDashboardContext } from '../DashboardContext';
 import './Greeting.css';
 
@@ -19,7 +18,6 @@ export function Greeting() {
   const getFirstName = (name: string) => {
     return name.split(' ')[0];
   };
-  const { user } = useAuth();
   const {
     handlePeriodChange,
     period,
@@ -29,6 +27,8 @@ export function Greeting() {
     shareError,
     isSharing,
     onDismissSharableUrl,
+    user,
+    isShared,
   } = useDashboardContext();
   const [copied, setCopied] = useState(false);
 
@@ -48,10 +48,14 @@ export function Greeting() {
   return (
     <section className="greeting">
       <div>
-        <h1 className="greeting__title">Hi {getFirstName(user?.name ?? '')}</h1>
+        <h1 className="greeting__title">
+          {isShared ? user?.name : `Hi ${getFirstName(user?.name ?? '')}`}
+        </h1>
         <p className="greeting__sub">
-          Here is how your finances look like in{' '}
-          {period.toLocaleString('default', { month: 'long', year: 'numeric' })}
+          {isShared
+            ? 'Here is how the finances looked in '
+            : 'Here is how your finances look like in '}
+          {period?.toLocaleString('default', { month: 'long', year: 'numeric' })}
         </p>
         {shareError ? (
           <p className="greeting__share-error" role="alert">
@@ -60,46 +64,50 @@ export function Greeting() {
         ) : null}
       </div>
       <div className="greeting__actions">
-        <button
-          type="button"
-          className="greeting__download"
-          onClick={onShareStatement}
-          disabled={isSharing}
-        >
-          {isSharing ? 'Sharing…' : 'Share'}
-        </button>
+        {!isShared ? (
+          <button
+            type="button"
+            className="greeting__download"
+            onClick={onShareStatement}
+            disabled={isSharing}
+          >
+            {isSharing ? 'Sharing…' : 'Share'}
+          </button>
+        ) : null}
         <button type="button" className="greeting__download" onClick={onDownloadPdf}>
           Download
         </button>
-        <div className="greeting__select-wrapper">
-          <select
-            onChange={(e) => {
-              handlePeriodChange(e.target.value);
-            }}
-            className="greeting__select"
-          >
-            {options.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-          <svg
-            className="greeting__select-icon"
-            width="12"
-            height="12"
-            viewBox="0 0 12 12"
-            fill="none"
-          >
-            <path
-              d="M2 4L6 8L10 4"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </div>
+        {!isShared ? (
+          <div className="greeting__select-wrapper">
+            <select
+              onChange={(e) => {
+                handlePeriodChange(e.target.value);
+              }}
+              className="greeting__select"
+            >
+              {options.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <svg
+              className="greeting__select-icon"
+              width="12"
+              height="12"
+              viewBox="0 0 12 12"
+              fill="none"
+            >
+              <path
+                d="M2 4L6 8L10 4"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+        ) : null}
       </div>
       {sharableUrl ? (
         <div className="greeting__share-result" role="status" aria-live="polite">

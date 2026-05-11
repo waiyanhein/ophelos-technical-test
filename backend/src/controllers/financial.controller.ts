@@ -12,10 +12,7 @@ import {
 } from '../services/sharableLink.service';
 
 export const financialRouter = Router();
-
-financialRouter.use(requireAuth);
-
-financialRouter.get('/dashboard', async (req: Request, res: Response) => {
+financialRouter.get('/dashboard', requireAuth, async (req: Request, res: Response) => {
   const authUser = req.authUser;
   if (!authUser) {
     res.status(401).json({ error: 'Authentication required' });
@@ -35,7 +32,7 @@ financialRouter.get('/dashboard', async (req: Request, res: Response) => {
   }
 });
 
-financialRouter.post('/sharable-statement', async (req: Request, res: Response) => {
+financialRouter.post('/sharable-statement', requireAuth, async (req: Request, res: Response) => {
   const authUser = req.authUser;
   if (!authUser) {
     res.status(401).json({ error: 'Authentication required' });
@@ -61,12 +58,6 @@ financialRouter.post('/sharable-statement', async (req: Request, res: Response) 
 });
 
 financialRouter.get(`/sharable-statement`, async (req: Request, res: Response) => {
-  const authUser = req.authUser;
-  if (!authUser) {
-    res.status(401).json({ error: 'Authentication required' });
-    return;
-  }
-
   try {
     const { token } = req.query;
     if (!token) {

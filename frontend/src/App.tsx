@@ -6,6 +6,7 @@ import { PublicOnlyRoute } from './components/PublicOnlyRoute/PublicOnlyRoute';
 import { Index } from './pages/Index/Index';
 import { Login } from './pages/Login/Login';
 import { Dashboard } from './pages/Dashboard/Dashboard';
+import { SharableStatement } from './pages/SharableStatement/SharableStatement';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
             <Route element={<ProtectedRoute />}>
               <Route path="/dashboard" element={<Dashboard />} />
             </Route>
+            <Route path="/sharable-statement/:token" element={<SharableStatement />} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>

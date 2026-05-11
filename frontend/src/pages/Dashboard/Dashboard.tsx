@@ -81,9 +81,13 @@ const DashboardContent = () => {
   );
 };
 
-export function Dashboard() {
+type DashboardProps = {
+  shareToken?: string;
+};
+
+export function Dashboard({ shareToken }: DashboardProps = {}) {
   return (
-    <DashoboardProvider>
+    <DashoboardProvider shareToken={shareToken}>
       <DashboardContent />
     </DashoboardProvider>
   );

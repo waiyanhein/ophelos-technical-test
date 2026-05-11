@@ -126,6 +126,36 @@ export async function fetchDashboard(month?: string, year?: string): Promise<Das
   throw new ApiError(message, response.status);
 }
 
+export type SharableStatementResDto = {
+  id: number;
+  user: { id: string; name: string; email: string };
+  data: DashboardResDto;
+  createdAt: string;
+};
+
+export async function fetchSharableStatement(token: string): Promise<SharableStatementResDto> {
+  let response: Response;
+  try {
+    response = await fetch(
+      `${API_BASE_URL}/financial/sharable-statement?token=${encodeURIComponent(token)}`,
+      {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      },
+    );
+  } catch {
+    throw new ApiError('Network error — please try again.', 0);
+  }
+
+  if (response.ok) {
+    return await response.json();
+  }
+
+  const body = await response.json().catch(() => null);
+  const message = extractErrorMessage(body) ?? 'Failed to load sharable statement.';
+  throw new ApiError(message, response.status);
+}
+
 export async function createSharableStatement(
   month?: string,
   year?: string,
