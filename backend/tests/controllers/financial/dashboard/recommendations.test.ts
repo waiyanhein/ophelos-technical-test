@@ -24,6 +24,9 @@ beforeEach(() => {
   createChatModelMock.mockImplementation(() => ({ invoke: invokeMock }));
 });
 
+/**
+ * @TODO - add more tests - such as it invokes the LLM with the correct messages and input data (cover prompts);
+ */
 describe('GET /financial/dashboard — recommendations (integration)', () => {
   withDatabase();
 

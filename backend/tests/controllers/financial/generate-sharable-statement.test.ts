@@ -33,7 +33,7 @@ describe('POST /financial/sharable-statement', () => {
 
   describe('authentication', () => {
     it('returns 401 when no Authorization header is sent', async () => {
-      const response = await request(createApp()).post('/financial/statement');
+      const response = await request(createApp()).post('/financial/sharable-statement');
       expect(response.status).toBe(401);
       expect(response.body).toEqual({
         error: 'Missing or malformed authorization header',
@@ -42,14 +42,14 @@ describe('POST /financial/sharable-statement', () => {
 
     it('returns 401 when the Authorization header is malformed', async () => {
       const response = await request(createApp())
-        .post('/financial/statement')
+        .post('/financial/sharable-statement')
         .set('Authorization', 'NotBearer abc');
       expect(response.status).toBe(401);
     });
 
     it('returns 401 when the JWT signature is invalid', async () => {
       const response = await request(createApp())
-        .post('/financial/statement')
+        .post('/financial/sharable-statement')
         .set('Authorization', 'Bearer not-a-real-token');
       expect(response.status).toBe(401);
       expect(response.body).toEqual({ error: 'Invalid token' });
@@ -62,7 +62,7 @@ describe('POST /financial/sharable-statement', () => {
         expiresIn: '-1s',
       });
       const response = await request(createApp())
-        .post('/financial/statement')
+        .post('/financial/sharable-statement')
         .set('Authorization', `Bearer ${expired}`);
       expect(response.status).toBe(401);
       expect(response.body).toEqual({ error: 'Token has expired' });

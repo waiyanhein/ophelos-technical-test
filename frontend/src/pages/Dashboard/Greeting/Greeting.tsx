@@ -29,6 +29,7 @@ export function Greeting() {
     onDismissSharableUrl,
     user,
     isShared,
+    dashboard,
   } = useDashboardContext();
   const [copied, setCopied] = useState(false);
 
@@ -69,17 +70,23 @@ export function Greeting() {
             type="button"
             className="greeting__download"
             onClick={onShareStatement}
-            disabled={isSharing}
+            disabled={isSharing || dashboard === null}
           >
             {isSharing ? 'Sharing…' : 'Share'}
           </button>
         ) : null}
-        <button type="button" className="greeting__download" onClick={onDownloadPdf}>
+        <button
+          disabled={dashboard === null}
+          type="button"
+          className="greeting__download"
+          onClick={onDownloadPdf}
+        >
           Download
         </button>
         {!isShared ? (
           <div className="greeting__select-wrapper">
             <select
+              disabled={dashboard === null}
               onChange={(e) => {
                 handlePeriodChange(e.target.value);
               }}

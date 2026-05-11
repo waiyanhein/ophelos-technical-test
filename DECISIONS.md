@@ -254,9 +254,13 @@ To address this, we can invalidate or update the cache whenever a new financial 
 
 However, the final caching strategy should be determined based on system metrics such as the read-to-write ratio.
 
+## Refreshing auth JWT token
+At the moment, the application does not automatically refresh the JWT token. When the token expires, the application simply throws an error. As a result, users need to explicitly log out and log back in again.
+
 ## Further Improvements
 There are many other improvements that could be implemented. However, there is only so much that can be achieved within a limited timeframe.
 
 # Bonus Features Implemented
 - **Implemented secure statement sharing** via a time-limited link
 - **Generated a PDF export** of the statement with appropriate branding
+- There are a lot of things to discuss.

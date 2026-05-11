@@ -1,3 +1,13 @@
 @import 'tailwindcss';
 @import './styles/theme.css';
 @import './styles/global.css';
+
+select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
