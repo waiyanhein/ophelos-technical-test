@@ -1,6 +1,11 @@
 # Time Spent
 I spent approximately 12 - 15 hours (on and off) working on this project. Development would likely have been faster if I had access to more credits from Anthropic.
 
+# Login Account (for Local Development)
+Email - `waiyanhein@test.com`
+
+Password - `Test123!`
+
 # Project Setup
 
 Before running the project, make sure the following are installed on your machine:
@@ -80,6 +85,11 @@ Open a new terminal window and run the following command from the project root d
 
 ```bash
 npm run fe:dev
+```
+
+The application will be available at:
+```
+http://localhost:5173/
 ```
 
 ---

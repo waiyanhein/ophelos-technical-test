@@ -68,12 +68,39 @@ const buildSeedRecords = (): SeedRecord[] => {
       day: 10,
     });
     records.push({
-      amount: row.outgoing * 0.2,
+      amount: row.outgoing * 0.1,
       type: 'outgoing',
       typeCategory: 'discretionary',
-      description: 'Subscriptions and dining',
+      description: 'Eating out',
       monthsAgo,
       day: 20,
+    });
+    // Netflix
+    records.push({
+      amount: row.outgoing * 0.02,
+      type: 'outgoing',
+      typeCategory: 'discretionary',
+      description: 'Netflix',
+      monthsAgo,
+      day: 25,
+    });
+    // Spotify
+    records.push({
+      amount: row.outgoing * 0.02,
+      type: 'outgoing',
+      typeCategory: 'discretionary',
+      description: 'Spotify',
+      monthsAgo,
+      day: 30,
+    });
+    // Disney+
+    records.push({
+      amount: row.outgoing * 0.02,
+      type: 'outgoing',
+      typeCategory: 'discretionary',
+      description: 'Disney+',
+      monthsAgo,
+      day: 30,
     });
   });
 
