@@ -5,14 +5,10 @@ import { RecommendationsCard } from '../../components/RecommendationsCard/Recomm
 import { MonthlyMoneyCard } from '../../components/MonthlyMoneyCard/MonthlyMoneyCard';
 import { ProgressCard } from '../../components/ProgressCard/ProgressCard';
 import { SupportCard } from '../../components/SupportCard/SupportCard';
-import { useAuth } from '../../lib/auth-context';
 import { type ProgressPoint } from '../../lib/api';
 import { formatCurrency } from '../../lib/format';
 import './Dashboard.css';
 import { DashoboardProvider, useDashboardContext } from './DashboardContext';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
-import { useRef } from 'react';
 
 /**
  * @TODO - move this business logic to the backend.
@@ -32,43 +28,18 @@ function buildProgressNote(points: ProgressPoint[]): string {
 }
 
 const DashboardContent = () => {
-  const { user } = useAuth();
-  const firstName = user?.name.trim().split(/\s+/)[0] ?? '';
-  const email = user?.email ?? '';
-  const pdfRef = useRef<HTMLDivElement>(null);
-
-  const { dashboard } = useDashboardContext();
+  const { dashboard, pdfRef } = useDashboardContext();
 
   const progress: ProgressPoint[] | null = dashboard?.overTimeProgress ?? null;
   const money = dashboard?.yourMoneyThisMonth ?? null;
   const recommendations = dashboard?.recommendations ?? [];
   const health = dashboard?.financialHealthStatus ?? null;
 
-  const onDownloadPdf = async () => {
-    const input = pdfRef.current;
-    if (!input) return;
-    const canvas = await html2canvas(input, {
-      scale: 2,
-    });
-    const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF({
-      orientation: 'portrait',
-      unit: 'px',
-      format: 'a4',
-    });
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-
-    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-
-    pdf.save('document.pdf');
-  };
-
   return (
     <div className="home" ref={pdfRef}>
-      <Header email={email} />
+      <Header />
       <main className="home__main">
-        <Greeting firstName={firstName} onDownloadPdf={onDownloadPdf} />
+        <Greeting />
         <div className="home__grid">
           <div className="home__col home__col--primary">
             {health === null ? (

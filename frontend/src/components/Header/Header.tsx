@@ -2,13 +2,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../lib/auth-context';
 import './Header.css';
 
-type Props = {
-  email: string;
-};
-
-export function Header({ email }: Props) {
+export function Header() {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
 
   function handleSignOut() {
     logout();
@@ -22,7 +18,7 @@ export function Header({ email }: Props) {
           Ophelos
         </Link>
         <nav className="site-header__meta">
-          <span className="site-header__email">{email}</span>
+          <span className="site-header__email">{user?.email ?? ''}</span>
           <button type="button" className="site-header__signout" onClick={handleSignOut}>
             Sign out
           </button>

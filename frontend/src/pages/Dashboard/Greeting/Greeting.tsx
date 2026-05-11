@@ -1,13 +1,6 @@
+import { useAuth } from '../../../lib/auth-context';
 import { useDashboardContext } from '../DashboardContext';
 import './Greeting.css';
-
-type Props = {
-  firstName: string;
-  /**
-   * @TODO - move this into DashboardContext to be consistent?
-   */
-  onDownloadPdf: () => void;
-};
 
 /**
  * @IMPORTANT - ideally. It's better if this comes from the backend so that datetime will be synced with other calculations.
@@ -21,18 +14,25 @@ const options = Array.from({ length: 6 }, (_, index) => {
   };
 });
 
-export function Greeting({ firstName, onDownloadPdf }: Props) {
-  const { handlePeriodChange, period } = useDashboardContext();
+export function Greeting() {
+  const getFirstName = (name: string) => {
+    return name.split(' ')[0];
+  };
+  const { user } = useAuth();
+  const { handlePeriodChange, period, onDownloadPdf } = useDashboardContext();
   return (
     <section className="greeting">
       <div>
-        <h1 className="greeting__title">Hi {firstName}</h1>
+        <h1 className="greeting__title">Hi {getFirstName(user?.name ?? '')}</h1>
         <p className="greeting__sub">
           Here is how your finances look like in{' '}
           {period.toLocaleString('default', { month: 'long', year: 'numeric' })}
         </p>
       </div>
       <div className="greeting__actions">
+        <button type="button" className="greeting__download" onClick={onDownloadPdf}>
+          Share Statement
+        </button>
         <button type="button" className="greeting__download" onClick={onDownloadPdf}>
           Download PDF
         </button>
