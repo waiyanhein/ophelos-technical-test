@@ -1,18 +1,18 @@
-jest.mock('../../../src/services/recommendations.service', () => ({
+jest.mock('../../../../src/services/recommendations.service', () => ({
   getRecommendations: jest.fn().mockResolvedValue([]),
 }));
 
 import { UTCDate } from '@date-fns/utc';
 import { getMonth, getYear } from 'date-fns';
 import request from 'supertest';
-import { createApp } from '../../../src/app';
-import { AppDataSource } from '../../../src/data-source';
+import { createApp } from '../../../../src/app';
+import { AppDataSource } from '../../../../src/data-source';
 import {
   FinancialRecord,
   FinancialRecordTypeCategory,
-} from '../../../src/entities/financial-record.entity';
-import { withDatabase } from '../../utilities';
-import { createUser, monthQuery, seedRecords, tokenForUser, utc } from './helpers';
+} from '../../../../src/entities/financial-record.entity';
+import { withDatabase } from '../../../utilities';
+import { createUser, monthQuery, seedRecords, tokenForUser, utc } from '../helpers';
 
 describe('GET /financial/dashboard — yourMoneyThisMonth (integration)', () => {
   withDatabase();

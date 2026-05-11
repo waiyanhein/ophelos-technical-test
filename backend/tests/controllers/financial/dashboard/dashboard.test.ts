@@ -1,13 +1,13 @@
-jest.mock('../../../src/services/recommendations.service', () => ({
+jest.mock('../../../../src/services/recommendations.service', () => ({
   getRecommendations: jest.fn().mockResolvedValue([]),
 }));
 
 import jwt from 'jsonwebtoken';
 import request from 'supertest';
-import { createApp } from '../../../src/app';
-import { loadConfig } from '../../../src/config/env';
-import { withDatabase } from '../../utilities';
-import { createUser, tokenForUser } from './helpers';
+import { createApp } from '../../../../src/app';
+import { loadConfig } from '../../../../src/config/env';
+import { withDatabase } from '../../../utilities';
+import { createUser, tokenForUser } from '../helpers';
 
 describe('GET /financial/dashboard — shared concerns (integration)', () => {
   withDatabase();

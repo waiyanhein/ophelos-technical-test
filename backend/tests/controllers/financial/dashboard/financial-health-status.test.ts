@@ -1,13 +1,13 @@
-jest.mock('../../../src/services/recommendations.service', () => ({
+jest.mock('../../../../src/services/recommendations.service', () => ({
   getRecommendations: jest.fn().mockResolvedValue([]),
 }));
 
 import { UTCDate } from '@date-fns/utc';
 import { getYear } from 'date-fns';
 import request from 'supertest';
-import { createApp } from '../../../src/app';
-import { withDatabase } from '../../utilities';
-import { createUser, monthQuery, seedRecords, tokenForUser, utc } from './helpers';
+import { createApp } from '../../../../src/app';
+import { withDatabase } from '../../../utilities';
+import { createUser, monthQuery, seedRecords, tokenForUser, utc } from '../helpers';
 
 describe('GET /financial/dashboard — financialHealthStatus (integration)', () => {
   withDatabase();

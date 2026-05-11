@@ -6,13 +6,13 @@ import request from 'supertest';
 const invokeMock = jest.fn<Promise<BaseMessage>, [BaseMessage[]]>();
 const createChatModelMock = jest.fn(() => ({ invoke: invokeMock }));
 
-jest.mock('../../../src/services/llm/chat-model', () => ({
+jest.mock('../../../../src/services/llm/chat-model', () => ({
   createChatModel: () => createChatModelMock(),
 }));
 
-import { createApp } from '../../../src/app';
-import { withDatabase } from '../../utilities';
-import { createUser, monthQuery, seedRecords, tokenForUser, utc } from './helpers';
+import { createApp } from '../../../../src/app';
+import { withDatabase } from '../../../utilities';
+import { createUser, monthQuery, seedRecords, tokenForUser, utc } from '../helpers';
 
 const replyWith = (recommendations: string[]): void => {
   invokeMock.mockResolvedValue(new AIMessage(JSON.stringify({ recommendations })));
