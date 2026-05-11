@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useAuth } from '../../../lib/auth-context';
 import { useDashboardContext } from '../DashboardContext';
 import './Greeting.css';
@@ -19,7 +20,31 @@ export function Greeting() {
     return name.split(' ')[0];
   };
   const { user } = useAuth();
-  const { handlePeriodChange, period, onDownloadPdf } = useDashboardContext();
+  const {
+    handlePeriodChange,
+    period,
+    onDownloadPdf,
+    onShareStatement,
+    sharableUrl,
+    shareError,
+    isSharing,
+    onDismissSharableUrl,
+  } = useDashboardContext();
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyLink = async () => {
+    if (!sharableUrl) return;
+    try {
+      await navigator.clipboard.writeText(sharableUrl);
+      setCopied(true);
+      window.setTimeout(() => {
+        setCopied(false);
+      }, 2000);
+    } catch {
+      setCopied(false);
+    }
+  };
+
   return (
     <section className="greeting">
       <div>
@@ -28,13 +53,23 @@ export function Greeting() {
           Here is how your finances look like in{' '}
           {period.toLocaleString('default', { month: 'long', year: 'numeric' })}
         </p>
+        {shareError ? (
+          <p className="greeting__share-error" role="alert">
+            {shareError}
+          </p>
+        ) : null}
       </div>
       <div className="greeting__actions">
-        <button type="button" className="greeting__download" onClick={onDownloadPdf}>
-          Share Statement
+        <button
+          type="button"
+          className="greeting__download"
+          onClick={onShareStatement}
+          disabled={isSharing}
+        >
+          {isSharing ? 'Sharing…' : 'Share'}
         </button>
         <button type="button" className="greeting__download" onClick={onDownloadPdf}>
-          Download PDF
+          Download
         </button>
         <div className="greeting__select-wrapper">
           <select
@@ -66,6 +101,27 @@ export function Greeting() {
           </svg>
         </div>
       </div>
+      {sharableUrl ? (
+        <div className="greeting__share-result" role="status" aria-live="polite">
+          <p className="greeting__share-success">
+            Sharable statement link created:{' '}
+            <a className="greeting__share-link" href={sharableUrl}>
+              {sharableUrl}
+            </a>
+          </p>
+          <button type="button" className="greeting__share-copy" onClick={handleCopyLink}>
+            {copied ? 'Copied!' : 'Copy Link'}
+          </button>
+          <button
+            type="button"
+            className="greeting__share-close"
+            onClick={onDismissSharableUrl}
+            aria-label="Dismiss sharable statement link"
+          >
+            ×
+          </button>
+        </div>
+      ) : null}
     </section>
   );
 }

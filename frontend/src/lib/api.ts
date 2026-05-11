@@ -126,6 +126,42 @@ export async function fetchDashboard(month?: string, year?: string): Promise<Das
   throw new ApiError(message, response.status);
 }
 
+export async function createSharableStatement(
+  month?: string,
+  year?: string,
+): Promise<{ token: string }> {
+  const authToken = getToken();
+  if (!authToken) {
+    throw new ApiError('Not authenticated.', 401);
+  }
+
+  const body: Record<string, string> = {};
+  if (month) body.month = month;
+  if (year) body.year = year;
+
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}/financial/sharable-statement`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+  } catch {
+    throw new ApiError('Network error — please try again.', 0);
+  }
+
+  if (response.ok) {
+    return await response.json();
+  }
+
+  const errBody = await response.json().catch(() => null);
+  const message = extractErrorMessage(errBody) ?? 'Failed to create sharable statement.';
+  throw new ApiError(message, response.status);
+}
+
 function extractErrorMessage(body: unknown): string | null {
   if (!body || typeof body !== 'object') return null;
   const record: Record<string, unknown> = { ...body };
