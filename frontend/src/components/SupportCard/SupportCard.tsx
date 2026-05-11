@@ -23,7 +23,7 @@ export function SupportCard() {
           <li key={link.href}>
             <a className="support-card__link" href={link.href} target="_blank" rel="noreferrer">
               <span>{link.label}</span>
-              <span className="support-card__icon" aria-hidden="true" />
+              <span>🔗</span>
             </a>
           </li>
         ))}
