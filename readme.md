@@ -99,3 +99,10 @@ npm run test      # Runs the test suite
 
 At the moment, only backend tests have been implemented.  
 End-to-end tests for the frontend will be added in the future using Playwright or Cypress.
+
+# Prompt History
+#### Claude Code Prompt History
+- The exported files can be found in the `/prompt-history` directory.
+#### Claude Chat History
+- https://claude.ai/share/89e5c4c4-4899-4b33-b21b-81aaf2f46829
+- etc.
