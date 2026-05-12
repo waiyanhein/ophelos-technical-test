@@ -1,3 +1,4 @@
+
 # Time Spent
 I spent approximately 12 - 15 hours (on and off) working on this project. Development would likely have been faster if I had access to more credits from Anthropic.
 
@@ -5,6 +6,9 @@ I spent approximately 12 - 15 hours (on and off) working on this project. Develo
 Email - `waiyanhein@test.com`
 
 Password - `Test123!`
+
+# Screen Recording
+![Demo](./screen-recording.gif)
 
 # Project Setup
 
