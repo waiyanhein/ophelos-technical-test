@@ -75,21 +75,21 @@ export const DashoboardProvider = ({ children, shareToken }: DashboardProviderPr
       return () => {
         cancelled = true;
       };
+    } else {
+      const qsYear = period.getFullYear().toString();
+      const month = period.getMonth() + 1;
+      const qsMonth = month < 10 ? `0${month}` : month.toString();
+      fetchDashboard(qsMonth, qsYear)
+        .then((data) => {
+          if (!cancelled) setDashboard(data);
+        })
+        .catch((error: unknown) => {
+          if (!cancelled) throwAsync(error);
+        });
+      return () => {
+        cancelled = true;
+      };
     }
-
-    const qsYear = period.getFullYear().toString();
-    const month = period.getMonth() + 1;
-    const qsMonth = month < 10 ? `0${month}` : month.toString();
-    fetchDashboard(qsMonth, qsYear)
-      .then((data) => {
-        if (!cancelled) setDashboard(data);
-      })
-      .catch((error: unknown) => {
-        if (!cancelled) throwAsync(error);
-      });
-    return () => {
-      cancelled = true;
-    };
   }, [throwAsync, period, shareToken]);
 
   const handlePeriodChange = (periodStr: string) => {
