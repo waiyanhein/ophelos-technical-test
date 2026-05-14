@@ -49,6 +49,9 @@ export const DashoboardProvider = ({ children, shareToken }: DashboardProviderPr
   const [sharedUser, setSharedUser] = useState<User | null>(null);
   const pdfRef = useRef<HTMLDivElement>(null);
 
+  /**
+   * this is a scalable and ideal approach because there's multiple if statements in the child components
+   */
   const isShared = Boolean(shareToken);
 
   const getPeriodQueryParts = (): { month: string; year: string } => {
