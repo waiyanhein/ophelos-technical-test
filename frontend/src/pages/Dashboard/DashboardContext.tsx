@@ -165,7 +165,6 @@ export const DashoboardProvider = ({ children, shareToken }: DashboardProviderPr
   );
 };
 
-// eslint-disable-next-line react-refresh/only-export-components
 export const useDashboardContext = () => {
   const context = useContext(DashboardContext);
   if (!context) {
